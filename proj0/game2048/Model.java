@@ -125,16 +125,14 @@ public class Model extends Observable {
                     continue;
                 }
                 if (board.tile(c, top) == null) {
-                    if (board.move(c, top, t)) {
-                        score += board.tile(c, top).value();
+                    if (moveAndMerge(c, top, t)) {
                         top -= 1;
                     }
                 } else {
                     if (!canMerge(c, top, t)) {
                         top -= 1;
                     }
-                    if (board.move(c, top, t)) {
-                        score += board.tile(c, top).value();
+                    if (moveAndMerge(c, top, t)) {
                         top -= 1;
                     }
                 }
@@ -150,6 +148,13 @@ public class Model extends Observable {
         return changed;
     }
 
+    private boolean moveAndMerge(int c, int top, Tile t) {
+        if (board.move(c, top, t)) {
+            score += board.tile(c, top).value();
+            return true;
+        }
+        return false;
+    }
     public boolean canMerge(int c, int top, Tile t) {
         if (t.value() == board.tile(c, top).value()){
             return true;
