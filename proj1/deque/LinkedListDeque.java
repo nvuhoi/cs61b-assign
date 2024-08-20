@@ -45,6 +45,7 @@ public class LinkedListDeque<T> {
             sentinel.prev = sentinel.next;
             sentinel.next.next = sentinel;
             sentinel.next.prev = sentinel;
+            last = sentinel.next;
         }
         size = size + 1;
     }
@@ -98,8 +99,8 @@ public class LinkedListDeque<T> {
             sentinel.prev = sentinel;
             last = last.prev;
         } else {
-            sentinel.next = sentinel.next.next;
             sentinel.next.next.prev = sentinel;
+            sentinel.next = sentinel.next.next;
         }
         size -= 1;
         return first;

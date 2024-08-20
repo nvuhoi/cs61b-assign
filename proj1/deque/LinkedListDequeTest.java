@@ -134,9 +134,9 @@ public class LinkedListDequeTest {
         LinkedListDeque<Integer> L = new LinkedListDeque<>();
         ArrayDeque<Integer> M = new ArrayDeque<>();
 
-        int N = 100000;
+        int N = 1000000;
         for (int i = 0; i < N; i += 1) {
-            int operationNumber = StdRandom.uniform(0, 4);
+            int operationNumber = StdRandom.uniform(0, 8);
             if (operationNumber == 0) {
                 // addLast
                 int randVal = StdRandom.uniform(0, 100);
@@ -158,9 +158,33 @@ public class LinkedListDequeTest {
                 if (L.size() == 0) {
                     continue;
                 }
-                int removeLast = L.removeLast();
-                int removeLastM = M.removeLast();
-                assertEquals(removeLast, removeLastM);
+                int remove_last = L.removeLast();
+                int remove_lastM = M.removeLast();
+                assertEquals(remove_last, remove_lastM);
+            } else if (operationNumber == 4) {
+                if (L.size() == 0) {
+                    continue;
+                }
+                int remove_first = L.removeFirst();
+                int remove_firstM = M.removeFirst();
+                assertEquals(remove_first, remove_firstM);
+            } else if (operationNumber == 5) {
+                int randVal = StdRandom.uniform(0, 100);
+                L.addFirst(randVal);
+                M.addFirst(randVal);
+            } else if (operationNumber == 6) {
+                if (L.size() == 0) {
+                    continue;
+                }
+                int first = L.getFirst();
+                int firstM = M.getFirst();
+                assertEquals(first, firstM);
+            } else if (operationNumber == 7) {
+                if (L.size() == 0) {
+                    continue;
+                }
+                int randVal = StdRandom.uniform(0, L.size());
+                assertEquals(L.get(randVal), M.get(randVal));
             }
         }
     }

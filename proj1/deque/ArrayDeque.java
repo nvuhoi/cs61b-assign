@@ -144,7 +144,7 @@ public class ArrayDeque<T> {
     }
 
     private void ifTooSmall() {
-        if (size >= 16 && size < items.length * 0.25) {
+        if (items.length >= 16 && size < items.length * 0.25) {
             resize(items.length / 2);
         }
     }
@@ -158,4 +158,5 @@ public class ArrayDeque<T> {
         }
         return items[target];
     }
+
 }
