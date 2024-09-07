@@ -188,4 +188,27 @@ public class LinkedListDequeTest {
             }
         }
     }
+    
+    @Test
+    public void equalTestArrayDeque() {
+        ArrayDeque<Integer> a1 = new ArrayDeque<>();
+        ArrayDeque<Integer> a2 = new ArrayDeque<>();
+        for (int i = 0; i < 6; i++) {
+            a1.addFirst(i);
+        }
+        for (int i = 5; i >= 0; i--) {
+            a2.addLast(i);
+        }
+        assertTrue(a1.equals(a2));
+    }
+    @Test
+    public void equalTestLinkListDeque() {
+        LinkedListDeque<Integer> a1 = new LinkedListDeque<>();
+        LinkedListDeque<Integer> a2 = new LinkedListDeque<>();
+        for (int i = 0; i < 6; i++) {
+            a1.addFirst(i);
+        }
+        a2 = a1;
+        assertTrue(a1.equals(a2));
+    }
 }

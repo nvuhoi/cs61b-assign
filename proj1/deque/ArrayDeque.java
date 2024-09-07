@@ -1,10 +1,13 @@
 package deque;
 
-public class ArrayDeque<T> {
-    private T[] items;
+import java.util.Iterator;
+
+public class ArrayDeque<T> implements Iterable<T>, Deque<T>{
+
+    protected T[] items;
     private int size;
     private int nextFirst = 4;
-    private int firstIndex = 5;
+    protected int firstIndex = 5;
     private int nextLast = 5;
     private int lastIndex = 4;
 
@@ -49,6 +52,7 @@ public class ArrayDeque<T> {
         resetLastIndex();
     }
 
+    @Override
     /** Inserts X into the back of the list. */
     public void addLast(T item) {
         if (size == items.length) {
@@ -65,6 +69,7 @@ public class ArrayDeque<T> {
         size += 1;
     }
 
+    @Override
     public void addFirst(T item) {
         if (size == items.length) {
             resize(size * 2);
@@ -87,15 +92,13 @@ public class ArrayDeque<T> {
     public T getLast() {
         return items[lastIndex];
     }
+    @Override
     /** Returns the number of items in the list. */
     public int size() {
         return size;
     }
 
-    public boolean isEmpty() {
-        return (size == 0);
-    }
-
+    @Override
     public void printDeque() {
         int index = firstIndex;
         for (int i = 0; i < size; i++) {
@@ -109,6 +112,7 @@ public class ArrayDeque<T> {
         System.out.println();
     }
 
+    @Override
     public T removeFirst() {
         if (size == 0) {
             return null;
@@ -126,6 +130,7 @@ public class ArrayDeque<T> {
         return first;
     }
 
+    @Override
     public T removeLast() {
         if (size == 0) {
             return null;
@@ -149,6 +154,7 @@ public class ArrayDeque<T> {
         }
     }
 
+    @Override
     public T get(int index){
         int target;
         if (firstIndex + index > items.length - 1){
@@ -159,4 +165,65 @@ public class ArrayDeque<T> {
         return items[target];
     }
 
+    public Iterator<T> iterator() {
+        return new ArrayDequeIterator();
+    }
+
+    private class ArrayDequeIterator implements Iterator<T> {
+        private int wisPos;
+
+        public ArrayDequeIterator() {
+            wisPos = firstIndex;
+        }
+
+        public boolean hasNext() {
+            return wisPos != nextLast;
+        }
+
+        public T next() {
+            T returnItem = items[wisPos];
+            if (wisPos != items.length - 1) {
+                wisPos += 1;
+            } else {
+                wisPos = 0;
+            }
+            return returnItem;
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (o instanceof ArrayDeque) {
+            ArrayDeque<T> other = (ArrayDeque<T>) o;
+            if (other.size == this.size) {
+
+                int p1 = this.firstIndex;
+                int p2 = other.firstIndex;
+
+                for (int i = 0; i < this.size; i++) {
+                    if (!this.items[p1].equals(other.items[p2])) {
+                        return false;
+                    }
+                    if (p1 != items.length - 1) {
+                        p1 += 1;
+                    } else {
+                        p1 = 0;
+                    }
+                    if (p2 != items.length - 1) {
+                        p2 += 1;
+                    } else {
+                        p2 = 0;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
 }
