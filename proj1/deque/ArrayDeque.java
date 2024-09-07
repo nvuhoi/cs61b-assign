@@ -148,7 +148,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
     }
 
     @Override
-    public T get(int index){
+    public T get(int index) {
         int target;
         if (firstIndex + index > items.length - 1) {
             target = firstIndex + index - items.length;
@@ -165,7 +165,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
     private class ArrayDequeIterator implements Iterator<T> {
         private int wisPos;
 
-        public ArrayDequeIterator() {
+        ArrayDequeIterator() {
             wisPos = firstIndex;
         }
 

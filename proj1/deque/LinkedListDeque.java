@@ -7,7 +7,7 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
         private T item;
         private IntNode next;
         private IntNode prev;
-        public IntNode(T i, IntNode n) {
+        IntNode(T i, IntNode n) {
             item = i;
             next = n;
         }
@@ -70,7 +70,6 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
     }
 
     @Override
-    /** Removes and returns the item at the front of the deque. If no such item exists, returns null. */
     public T removeFirst() {
         if (size == 0) {
             return null;
@@ -89,7 +88,6 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
     }
 
     @Override
-    /** Removes and returns the item at the back of the deque. If no such item exists, returns null. */
     public T removeLast() {
         if (size == 0) {
             return null;
@@ -103,7 +101,6 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
     }
 
     @Override
-    /** Gets the item at the given index, where 0 is the front, 1 is the next item, and so forth. If no such item exists, returns null. */
     public T get(int index) {
         IntNode p = sentinel.next;
         for (int i = 0; i < index; i++) {
@@ -111,8 +108,7 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
         }
         return p.item;
     }
-
-    /** Returns whether or not the parameter o is equal to the Deque. */
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -162,7 +158,7 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
     private class LinkListDequeIterator implements Iterator<T> {
         private IntNode wisPos;
 
-        public LinkListDequeIterator() {
+        LinkListDequeIterator() {
             wisPos = sentinel.next;
         }
 
