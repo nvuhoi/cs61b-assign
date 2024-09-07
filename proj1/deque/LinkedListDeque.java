@@ -1,12 +1,12 @@
 package deque;
 
 import java.util.Iterator;
-public class LinkedListDeque<T> implements Iterable<T>, Deque<T>{
+public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
 
     private class IntNode {
-        public T item;
-        public IntNode next;
-        public IntNode prev;
+        private T item;
+        private IntNode next;
+        private IntNode prev;
         public IntNode(T i, IntNode n) {
             item = i;
             next = n;
@@ -27,16 +27,6 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T>{
         size = 0;
     }
 
-    public LinkedListDeque(T item) {
-        sentinel = new IntNode(null, null);
-        sentinel.next = new IntNode(item, null);
-        sentinel.next.prev = sentinel;
-        sentinel.next.next = sentinel;
-        sentinel.prev = sentinel.next;
-        last = sentinel.next;
-        size = 1;
-    }
-
     @Override
     /** Adds x to the front of the list. */
     public void addFirst(T item) {
@@ -53,11 +43,6 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T>{
         size = size + 1;
     }
 
-    /** Returns the first item in the list. */
-    public T getFirst() {
-        return sentinel.next.item;
-    }
-
     @Override
     /** Adds x to the end of the list. */
     public void addLast(T x) {
@@ -69,11 +54,6 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T>{
         size += 1;
     }
 
-    /** returns last item in the list. */
-    public T getLast() {
-        return last.item;
-    }
-    
     @Override
     /** Returns the number of items in the deque. */
     public int size() {

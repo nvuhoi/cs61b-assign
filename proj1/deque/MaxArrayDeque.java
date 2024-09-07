@@ -14,14 +14,12 @@ public class MaxArrayDeque<T> extends ArrayDeque<T> {
             return null;
         }
         T maxElement = get(0);
-        int index = firstIndex;
 
         for (int i = 0; i < size(); i++) {
-            T current = items[index];
+            T current = get(i);
             if (comparator.compare(current, maxElement) > 0) {
                 maxElement = current;
             }
-            index = (index + 1) % items.length;
         }
         return maxElement;
     }
@@ -31,14 +29,12 @@ public class MaxArrayDeque<T> extends ArrayDeque<T> {
             return null;
         }
         T maxElement = get(0);
-        int index = firstIndex;
 
         for (int i = 0; i < size(); i++) {
-            T current = items[index];
+            T current = get(i);
             if (c.compare(current, maxElement) > 0) {
                 maxElement = current;
             }
-            index = (index + 1) % items.length;
         }
         return maxElement;
     }

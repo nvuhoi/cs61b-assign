@@ -148,12 +148,7 @@ public class LinkedListDequeTest {
                 int sizeM = M.size();
                 assertEquals(size, sizeM);
             } else if (operationNumber == 2) {
-                if (L.size() == 0) {
-                    continue;
-                }
-                int last = L.getLast();
-                int lastM = M.getLast();
-                assertEquals(last, lastM);
+
             } else if (operationNumber == 3) {
                 if (L.size() == 0) {
                     continue;
@@ -173,12 +168,7 @@ public class LinkedListDequeTest {
                 L.addFirst(randVal);
                 M.addFirst(randVal);
             } else if (operationNumber == 6) {
-                if (L.size() == 0) {
-                    continue;
-                }
-                int first = L.getFirst();
-                int firstM = M.getFirst();
-                assertEquals(first, firstM);
+
             } else if (operationNumber == 7) {
                 if (L.size() == 0) {
                     continue;

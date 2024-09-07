@@ -2,12 +2,12 @@ package deque;
 
 import java.util.Iterator;
 
-public class ArrayDeque<T> implements Iterable<T>, Deque<T>{
+public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
 
-    protected T[] items;
+    private T[] items;
     private int size;
     private int nextFirst = 4;
-    protected int firstIndex = 5;
+    private int firstIndex = 5;
     private int nextLast = 5;
     private int lastIndex = 4;
 
@@ -85,13 +85,6 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T>{
         size += 1;
     }
 
-    public T getFirst() {
-        return items[firstIndex];
-    }
-
-    public T getLast() {
-        return items[lastIndex];
-    }
     @Override
     /** Returns the number of items in the list. */
     public int size() {
@@ -157,7 +150,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T>{
     @Override
     public T get(int index){
         int target;
-        if (firstIndex + index > items.length - 1){
+        if (firstIndex + index > items.length - 1) {
             target = firstIndex + index - items.length;
         } else {
             target = firstIndex + index;
