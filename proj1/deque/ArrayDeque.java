@@ -189,15 +189,15 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (o == null || !(o instanceof Deque)) {
             return false;
         }
-        Deque<?> other = (Deque<?>) o;  // 使用通配符来避免不安全的类型转换
+        Deque<?> other = (Deque<?>) o;
         if (other.size() != this.size()) {
             return false;
         }
         for (int i = 0; i < this.size(); i++) {
-            if (!this.get(i).equals(other.get(i))) {  // 确保调用元素的 equals
+            if (!this.get(i).equals(other.get(i))) {
                 return false;
             }
         }
