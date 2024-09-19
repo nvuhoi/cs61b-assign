@@ -7,10 +7,10 @@ import static capers.Utils.*;
 /** Represents a dog that can be serialized.
  * @author TODO
 */
-public class Dog { // TODO
+public class Dog implements Serializable { // TODO
 
     /** Folder that dogs live in. */
-    static final File DOG_FOLDER = null; // TODO (hint: look at the `join`
+    static final File DOG_FOLDER = Utils.join(".capers", "dogs"); // TODO (hint: look at the `join`
                                          //      function in Utils)
 
     /** Age of dog. */
@@ -40,7 +40,8 @@ public class Dog { // TODO
      */
     public static Dog fromFile(String name) {
         // TODO (hint: look at the Utils file)
-        return null;
+        Dog thisDog = Utils.readObject(Utils.join(DOG_FOLDER.toString(), name), Dog.class);
+        return thisDog;
     }
 
     /**
@@ -57,6 +58,11 @@ public class Dog { // TODO
      */
     public void saveDog() {
         // TODO (hint: don't forget dog names are unique)
+        if (!DOG_FOLDER.exists()) {
+            DOG_FOLDER.mkdirs();
+        }
+        File dogFile = Utils.join(DOG_FOLDER.toString(), name);
+        Utils.writeObject(dogFile, this);
     }
 
     @Override
