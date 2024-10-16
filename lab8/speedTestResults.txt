@@ -1,0 +1,6 @@
+class hashmap.MyHashMapALBuckets: 0.13 sec
+class hashmap.MyHashMapLLBuckets: 0.13 sec
+class hashmap.MyHashMapTSBuckets: 0.19 sec
+class hashmap.MyHashMapHSBuckets: 0.17 sec
+class hashmap.MyHashMapPQBuckets: 0.11 sec
+when the key can compare BST is better;
