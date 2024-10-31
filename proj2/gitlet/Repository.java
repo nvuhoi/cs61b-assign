@@ -1,6 +1,9 @@
 package gitlet;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+
 import static gitlet.Utils.*;
 
 // TODO: any imports you need here
@@ -24,6 +27,43 @@ public class Repository {
     public static final File CWD = new File(System.getProperty("user.dir"));
     /** The .gitlet directory. */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
+    /** The branch directory to save branch. */
+    public static final File BRANCH_DIR = join(GITLET_DIR, "branches");
+    /** The logs directory to save commits. */
+    public static final File LOGS_DIR = join(GITLET_DIR, "logs");
+
 
     /* TODO: fill in the rest of this class. */
+    public static void init() {
+        if (GITLET_DIR.exists()) {
+            System.out.println("A Gitlet version-control system already exists in the current directory.");
+            System.exit(0);
+        } else {
+            GITLET_DIR.mkdir();
+            BRANCH_DIR.mkdir();
+            LOGS_DIR.mkdir();
+
+            Commit firstCommit = new Commit();
+            String firstCommitSha = Utils.sha1("firstCommit");
+            firstCommit.saveCommit(firstCommitSha);
+            File master = createBranch("master");
+            changeBranchPoint(master, firstCommitSha);
+            File HEAD = createBranch("HEAD");
+            changeBranchPoint(HEAD, firstCommitSha);
+        }
+    }
+
+    private static void changeBranchPoint(File pointer, String sha) {
+        Utils.writeContents(pointer, sha);
+    }
+
+    private static File createBranch(String branchName) {
+        File branch = Utils.join(BRANCH_DIR, branchName);
+        try {
+            branch.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return branch;
+    }
 }
