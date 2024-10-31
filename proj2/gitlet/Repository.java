@@ -31,6 +31,8 @@ public class Repository {
     public static final File BRANCH_DIR = join(GITLET_DIR, "branches");
     /** The logs directory to save commits. */
     public static final File LOGS_DIR = join(GITLET_DIR, "logs");
+    /** The staged directory to save stagedFile */
+    public static final File STAGED_DIR = join(GITLET_DIR, "staged");
 
 
     /* TODO: fill in the rest of this class. */
@@ -42,6 +44,7 @@ public class Repository {
             GITLET_DIR.mkdir();
             BRANCH_DIR.mkdir();
             LOGS_DIR.mkdir();
+            STAGED_DIR.mkdir();
 
             Commit firstCommit = new Commit();
             String firstCommitSha = Utils.sha1("firstCommit");
@@ -65,5 +68,33 @@ public class Repository {
             throw new RuntimeException(e);
         }
         return branch;
+    }
+
+    /** TODO: If the current working version of the file is identical
+     *to the version in the current commit, do not stage it to be added, and
+     *remove it from the staging area if it is already there
+     */
+    public static void add(String filename) {
+        File file = Utils.join(CWD, filename);
+        String fileContentsSha = Utils.sha1(readContents(file));
+        for (String i : plainFilenamesIn(STAGED_DIR)) {
+            if (i == filename) {
+                File fileOverwrite = Utils.join(STAGED_DIR, filename);
+                Utils.writeContents(fileOverwrite, Utils.readContentsAsString(file));
+                try {
+                    fileOverwrite.createNewFile();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                System.exit(0);
+            }
+        }
+        File fileCopy = Utils.join(STAGED_DIR, filename);
+        Utils.writeContents(fileCopy, Utils.readContentsAsString(file));
+        try {
+            fileCopy.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

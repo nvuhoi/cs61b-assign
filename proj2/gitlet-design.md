@@ -64,7 +64,7 @@
 1. private String message;
 2. private String parent1;
 3. private String parent2;
-4. private HashSet<String> blobs;
+4. private HashMap<String, String> blobs;
 5. private Date date;
 
 ##### 5.public void saveCommit(String sha)

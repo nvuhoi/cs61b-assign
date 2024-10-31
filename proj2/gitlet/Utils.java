@@ -62,7 +62,7 @@ class Utils {
     /** Returns the SHA-1 hash of the concatenation of the strings in
      *  VALS. */
     /** 傳回字串串聯的 SHA-1 雜湊值
-     * 瓦爾斯。 */
+     * Vals。 */
     static String sha1(List<Object> vals) {
         return sha1(vals.toArray(new Object[vals.size()]));
     }
