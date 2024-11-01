@@ -88,5 +88,8 @@ firstCommit 包含:
 先檢查是否初始化過了，再檢查文件是否存在，
 迭代 Staged 資料夾內的文件名稱查看是否覆蓋，
 若 staged 區不存在則複製一份 file 到 staged 區。
+
+另外在 Blogs 資料夾處存同名稱最新的副本(若未 commit 就 add 同文件名
+會覆蓋掉，直到 commit 才會改名成 Sha-1 的文件名。)
 ## Persistence
 

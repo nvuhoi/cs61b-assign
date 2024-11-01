@@ -27,6 +27,8 @@ public class Repository {
     public static final File STAGED_DIR = join(GITLET_DIR, "staged");
     /** The blobs directory to save files. */
     public static final File BLOB_DIR = join(GITLET_DIR, "blobs");
+    /** The HEAD pointer file */
+    public static final File HEAD = join(BRANCH_DIR, "HEAD");
 
 
     public static void init() {
@@ -81,9 +83,14 @@ public class Repository {
         }
     }
 
+    /** Copy contents of file as String to target. */
+    private static void copyfile(File target, File file) {
+        writeContents(target, readContentsAsString(file));
+    }
+
     /** TODO: If the current working version of the file is identical
-     *to the version in the current commit, do not stage it to be added, and
-     *remove it from the staging area if it is already there
+     *  to the version in the current commit, do not stage it to be added, and
+     *  remove it from the staging area if it is already there
      */
     public static void add(String filename) {
         checkInit();
@@ -94,17 +101,21 @@ public class Repository {
             exitGitlet();
         }
 
-        File stagedList = join(STAGED_DIR, "stagedList");
-        if (stagedList.exists()) {
-            HashMap<String, String> fileMap = readObject(stagedList, HashMap.class);
+        File fileSendToBlobs = join(BLOB_DIR, filename);
+        copyfile(fileSendToBlobs, file);
+        createFile(fileSendToBlobs);
+
+        File stagedMap = join(STAGED_DIR, "stagedList");
+        if (stagedMap.exists()) {
+            HashMap<String, String> fileMap = readObject(stagedMap, HashMap.class);
             fileMap.put(fileNameSha(filename), fileSha(filename, file));
-            writeObject(stagedList, HashMap.class);
+            writeObject(stagedMap, fileMap);
             exitGitlet();
         } else {
             HashMap<String, String> fileMap = new HashMap<>();
-            createFile(stagedList);
+            createFile(stagedMap);
             fileMap.put(fileNameSha(filename), fileSha(filename, file));
-            writeObject(stagedList, HashMap.class);
+            writeObject(stagedMap, fileMap);
             exitGitlet();
         }
     }
@@ -117,5 +128,12 @@ public class Repository {
     /** Return Sha-1 of filename and contents. */
     public static String fileSha(String filename, File file) {
         return sha1(filename, readContents(file));
+    }
+
+    public static void commit(String commitMessage) {
+        checkInit();
+
+        String headSha = readContentsAsString(HEAD);
+
     }
 }

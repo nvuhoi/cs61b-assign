@@ -9,6 +9,9 @@ public class Main {
      *  <COMMAND> <OPERAND1> <OPERAND2> ... 
      */
     public static void main(String[] args) {
+        /** TODO:If a user inputs a command with the wrong number
+         *  or format of operands, print the message Incorrect operands. and exit.
+         */
         if (args.length == 0) {
             System.out.println("Please enter a command.");
             exitGitlet();
@@ -16,14 +19,17 @@ public class Main {
         String firstArg = args[0];
         switch(firstArg) {
             case "init":
-                // TODO: handle the `init` command
+                validateNumArgs(args, 1);
                 Repository.init();
                 break;
             case "add":
-                // TODO: handle the `add [filename]` command
+                validateNumArgs(args, 2);
                 Repository.add(args[1]);
                 break;
-            // TODO: FILL THE REST IN
+            case "commit":
+                validateNumArgs(args, 2);
+                Repository.commit(args[1]);
+                break;
             default:
                 System.out.println("No command with that name exists.");
                 exitGitlet();
@@ -32,5 +38,12 @@ public class Main {
     /** Exit gitlet. */
     private static void exitGitlet() {
         System.exit(0);
+    }
+
+    public static void validateNumArgs(String[] args, int n) {
+        if (args.length != n) {
+            System.out.println("Incorrect operands.");
+            exitGitlet();
+        }
     }
 }

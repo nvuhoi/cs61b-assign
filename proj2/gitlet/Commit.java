@@ -43,6 +43,18 @@ public class Commit implements Serializable {
         this.date = new Date(0);
     }
 
+    public Commit(String parent1, String message, HashMap<String, String> blobsMap) {
+        this(parent1, null, message, blobsMap);
+    }
+
+    public Commit(String parent1, String parent2, String message, HashMap<String, String> blobsMap) {
+        this.parent1 = parent1;
+        this.parent2 = parent2;
+        this.message = message;
+        this.blobs = blobsMap;
+        this.date = new Date();
+    }
+
     /** Serialize commit as file. */
     public void saveCommit(String sha) {
         File commitFile = Utils.join(LOGS_DIR, sha);
