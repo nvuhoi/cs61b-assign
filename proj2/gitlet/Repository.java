@@ -30,6 +30,12 @@ public class Repository {
     public static final File BLOB_DIR = join(GITLET_DIR, "blobs");
     /** The HEAD pointer file */
     public static final File HEAD = join(BRANCH_DIR, "HEAD");
+    /** The commit record map */
+    public static final File COMMIT = join(LOGS_DIR, "commitMap");
+    /** The blobs file save blogMap */
+    public static final File BLOBS = join(BLOB_DIR, "blobsMap");
+    /** The stagedMap */
+    public static final File STAGING = join(STAGED_DIR, "stagedMap");
 
 
     public static void init() {
@@ -42,7 +48,18 @@ public class Repository {
             LOGS_DIR.mkdir();
             STAGED_DIR.mkdir();
             BLOB_DIR.mkdir();
+            createFile(BLOBS);
+            createFile(STAGING);
+            createFile(COMMIT);
 
+            HashMap<String, File> blogsMap = new HashMap<>();
+            writeObject(BLOBS, blogsMap);
+
+            HashMap<String, String> fileMap = new HashMap<>();
+            writeObject(STAGING, fileMap);
+
+            HashMap<String, File> commitHashMap = new HashMap<>();
+            writeObject(COMMIT, commitHashMap);
 
             Commit firstCommit = new Commit();
             String firstCommitSha = Utils.sha1("firstCommit");
@@ -107,17 +124,15 @@ public class Repository {
         copyfile(fileSendToBlobs, file);
         createFile(fileSendToBlobs);
 
-        File stagedMap = join(STAGED_DIR, "stagedList");
-        HashMap<String, String> fileMap;
-        if (stagedMap.exists()) {
-            fileMap = readObject(stagedMap, HashMap.class);
-        } else {
-            fileMap = new HashMap<>();
-            createFile(stagedMap);
-        }
+        HashMap<String, String> fileMap = getStagedMap();
         fileMap.put(fileNameSha(filename), fileSha(filename, file));
-        writeObject(stagedMap, fileMap);
+        writeObject(STAGING, fileMap);
         exitGitlet();
+    }
+
+    /** return fileMap in STAGING */
+    public static HashMap<String, String> getStagedMap() {
+        return readObject(STAGING, HashMap.class);
     }
 
     /** Return Sha-1 of filename. */
@@ -133,7 +148,24 @@ public class Repository {
     public static void commit(String commitMessage) {
         checkInit();
 
-        String headSha = readContentsAsString(HEAD);
+        HashMap<String, String> headCommitBlobs = getHeadCommitBlobsMap();
 
+
+    }
+
+    /** get Sha-1 commit. */
+    public static Commit getCommit (String sha) {
+        HashMap<String, File> commitHashMap = readObject(COMMIT, HashMap.class);
+        return readObject(commitHashMap.get(sha), Commit.class);
+    }
+    /** get head commit. */
+    public static Commit getHeadCommit() {
+        String headSha = readContentsAsString(HEAD);
+        return getCommit(headSha);
+    }
+    /** get head commit blobsMap */
+    public static HashMap<String, String> getHeadCommitBlobsMap() {
+        Commit headCommit = getHeadCommit();
+        return headCommit.getBlobs();
     }
 }

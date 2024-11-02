@@ -22,6 +22,8 @@ public class Commit implements Serializable {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     /** The logs directory to save commits. */
     public static final File LOGS_DIR = join(GITLET_DIR, "logs");
+    /** The commit record map */
+    public static final File COMMIT = join(LOGS_DIR, "commitMap");
     /** The message of this Commit. */
     private String message;
     /** commit time. */
@@ -38,10 +40,29 @@ public class Commit implements Serializable {
         this.parent1 = null;
         this.parent2 = null;
         this.message = "initial commit";
-        this.blobs = null;
+        this.blobs = new HashMap<>();
         this.date = new Date(0);
     }
 
+    public String getParent1() {
+        return parent1;
+    }
+
+    public String getParent2() {
+        return parent2;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public HashMap<String, String> getBlobs() {
+        return blobs;
+    }
     public Commit(String parent1, String message, HashMap<String, String> blobsMap) {
         this(parent1, null, message, blobsMap);
     }
@@ -56,18 +77,15 @@ public class Commit implements Serializable {
 
     /** Serialize commit as file. */
     public void saveCommit(String sha) {
-        File commitRecord = join(LOGS_DIR, "commitRecord");
+
         File commitFile = join(LOGS_DIR, sha);
         writeObject(commitFile, this);
-        HashMap<String, File> commitHashMap;
-        if (commitRecord.exists()) {
-            commitHashMap = readObject(commitRecord, HashMap.class);
-        } else {
-            commitHashMap = new HashMap<>();
-            createFile(commitRecord);
-        }
+        createFile(commitFile);
+
+        HashMap<String, File> commitHashMap = readObject(COMMIT, HashMap.class);
+
         commitHashMap.put(sha, commitFile);
-        writeObject(commitRecord, commitHashMap);
+        writeObject(COMMIT, commitHashMap);
     }
 
     private static void createFile(File file) {
