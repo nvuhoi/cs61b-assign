@@ -6,8 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 
-import static gitlet.Utils.join;
-import static gitlet.Utils.writeObject;
+import static gitlet.Utils.*;
 
 /** Represents a gitlet commit object.
  *
@@ -57,9 +56,18 @@ public class Commit implements Serializable {
 
     /** Serialize commit as file. */
     public void saveCommit(String sha) {
-        File commitFile = Utils.join(LOGS_DIR, sha);
-        createFile(commitFile);
+        File commitRecord = join(LOGS_DIR, "commitRecord");
+        File commitFile = join(LOGS_DIR, sha);
         writeObject(commitFile, this);
+        HashMap<String, File> commitHashMap;
+        if (commitRecord.exists()) {
+            commitHashMap = readObject(commitRecord, HashMap.class);
+        } else {
+            commitHashMap = new HashMap<>();
+            createFile(commitRecord);
+        }
+        commitHashMap.put(sha, commitFile);
+        writeObject(commitRecord, commitHashMap);
     }
 
     private static void createFile(File file) {

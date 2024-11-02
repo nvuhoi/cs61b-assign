@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import static gitlet.Utils.*;
 
@@ -41,6 +42,7 @@ public class Repository {
             LOGS_DIR.mkdir();
             STAGED_DIR.mkdir();
             BLOB_DIR.mkdir();
+
 
             Commit firstCommit = new Commit();
             String firstCommitSha = Utils.sha1("firstCommit");
@@ -106,18 +108,16 @@ public class Repository {
         createFile(fileSendToBlobs);
 
         File stagedMap = join(STAGED_DIR, "stagedList");
+        HashMap<String, String> fileMap;
         if (stagedMap.exists()) {
-            HashMap<String, String> fileMap = readObject(stagedMap, HashMap.class);
-            fileMap.put(fileNameSha(filename), fileSha(filename, file));
-            writeObject(stagedMap, fileMap);
-            exitGitlet();
+            fileMap = readObject(stagedMap, HashMap.class);
         } else {
-            HashMap<String, String> fileMap = new HashMap<>();
+            fileMap = new HashMap<>();
             createFile(stagedMap);
-            fileMap.put(fileNameSha(filename), fileSha(filename, file));
-            writeObject(stagedMap, fileMap);
-            exitGitlet();
         }
+        fileMap.put(fileNameSha(filename), fileSha(filename, file));
+        writeObject(stagedMap, fileMap);
+        exitGitlet();
     }
 
     /** Return Sha-1 of filename. */
