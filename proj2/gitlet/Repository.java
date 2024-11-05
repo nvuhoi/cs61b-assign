@@ -144,6 +144,7 @@ public class Repository {
         HashMap<String, String> headBlobsMap = getHeadCommitBlobsMap();
         if (headBlobsMap.containsValue(fileSha)) {
             removeStagedMapKey(fileNameSha(filename));
+            join(PREPAREDCOMMIT_DIR, filename).delete();
             exitGitlet();
         }
     }
