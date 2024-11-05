@@ -36,7 +36,8 @@ public class Repository {
     public static final File BLOBS = join(BLOB_DIR, "blobsMap");
     /** The stagedMap */
     public static final File STAGING = join(STAGED_DIR, "stagedMap");
-
+    /** prepared commit file director. */
+    public static final File PREPAREDCOMMIT_DIR = join(BLOB_DIR, "prepareCommit");
 
     public static void init() {
         if (GITLET_DIR.exists()) {
@@ -48,6 +49,8 @@ public class Repository {
             LOGS_DIR.mkdir();
             STAGED_DIR.mkdir();
             BLOB_DIR.mkdir();
+            PREPAREDCOMMIT_DIR.mkdir();
+
             createFile(BLOBS);
             createFile(STAGING);
             createFile(COMMIT);
@@ -120,7 +123,7 @@ public class Repository {
             exitGitlet();
         }
 
-        File fileSendToBlobs = join(BLOB_DIR, filename);
+        File fileSendToBlobs = join(PREPAREDCOMMIT_DIR, filename);
         copyfile(fileSendToBlobs, file);
         createFile(fileSendToBlobs);
 
@@ -148,9 +151,33 @@ public class Repository {
     public static void commit(String commitMessage) {
         checkInit();
 
-        HashMap<String, String> headCommitBlobs = getHeadCommitBlobsMap();
+        HashMap<String, String> newBlobsMap = mergeTwoMapToTarget(getHeadCommitBlobsMap(), getStagedMap());
+        Commit newCommit = new Commit (getHeadCommitSha(), commitMessage, newBlobsMap);
+        newCommit.saveCommit();
 
+        changePrepareCommit_DirFilesPathToBlobs_Dir();
+        exitGitlet();
+    }
+    /** Change PrepareCommit_Dir Files' Path To Blobs_Dir and update blobsMap. */
+    public static void changePrepareCommit_DirFilesPathToBlobs_Dir() {
+        HashMap<String, File> blobsMap = getBlobsMap();
+        for (String i : plainFilenamesIn(PREPAREDCOMMIT_DIR)) {
 
+            File file = join(PREPAREDCOMMIT_DIR, i);
+            String filesha = fileSha(i, join(PREPAREDCOMMIT_DIR, i));
+
+            file.renameTo(join(BLOB_DIR, filesha));
+            blobsMap.put(filesha, join(BLOB_DIR, filesha));
+
+            restrictedDelete(join(PREPAREDCOMMIT_DIR, i));
+        }
+    }
+    /** add HashMap to TargetMap, if targetMap have same key, replace that value. And return the new HashMap */
+    public static HashMap<String, String> mergeTwoMapToTarget(HashMap<String, String> targetMap, HashMap<String, String> hashMap) {
+        for (String i : hashMap.keySet()) {
+            targetMap.put(i, hashMap.get(i));
+        }
+        return targetMap;
     }
 
     /** get Sha-1 commit. */
@@ -158,14 +185,21 @@ public class Repository {
         HashMap<String, File> commitHashMap = readObject(COMMIT, HashMap.class);
         return readObject(commitHashMap.get(sha), Commit.class);
     }
+    /** get head commit's Sha-1. */
+    public static String getHeadCommitSha() {
+        return readContentsAsString(HEAD);
+    }
     /** get head commit. */
     public static Commit getHeadCommit() {
-        String headSha = readContentsAsString(HEAD);
-        return getCommit(headSha);
+        return getCommit(getHeadCommitSha());
     }
     /** get head commit blobsMap */
     public static HashMap<String, String> getHeadCommitBlobsMap() {
         Commit headCommit = getHeadCommit();
         return headCommit.getBlobs();
+    }
+    /** get blobsMap */
+    public static HashMap<String, File> getBlobsMap() {
+        return readObject(STAGING, HashMap.class);
     }
 }

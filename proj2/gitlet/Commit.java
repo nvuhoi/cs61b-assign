@@ -88,6 +88,20 @@ public class Commit implements Serializable {
         writeObject(COMMIT, commitHashMap);
     }
 
+    public void saveCommit() {
+        String string = "";
+        for (String i  : this.getBlobs().values()) {
+            string += i;
+        }
+        if (parent2 != null) {
+            string += parent2;
+        }
+        string += parent1;
+        string += message;
+        string += date.toString();
+        saveCommit(sha1(string));
+    }
+
     private static void createFile(File file) {
         try {
             file.createNewFile();
