@@ -108,10 +108,7 @@ public class Repository {
         writeContents(target, readContentsAsString(file));
     }
 
-    /** TODO: If the current working version of the file is identical
-     *  to the version in the current commit, do not stage it to be added, and
-     *  remove it from the staging area if it is already there
-     */
+
     public static void add(String filename) {
         checkInit();
 
@@ -200,6 +197,7 @@ public class Repository {
             blobsMap.put(filesha, join(BLOB_DIR, filesha));
 
         }
+        writeObject(BLOBS, blobsMap);
     }
     /** add HashMap to TargetMap, if targetMap have same key, replace that value. And return the new HashMap. */
     public static HashMap<String, String> mergeTwoMapToTarget(HashMap<String, String> targetMap, HashMap<String, String> hashMap) {
@@ -229,11 +227,11 @@ public class Repository {
     }
     /** get blobsMap. */
     public static HashMap<String, File> getBlobsMap() {
-        return readObject(STAGING, HashMap.class);
+        return readObject(BLOBS, HashMap.class);
     }
     /** Clean staging area */
     public static void cleanStagedMap() {
-        HashMap<String, String > Map = getStagedMap();
+        HashMap<String, String> Map = getStagedMap();
         Map.clear();
         writeObject(STAGING, Map);
     }
