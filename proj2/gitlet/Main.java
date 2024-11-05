@@ -13,8 +13,7 @@ public class Main {
          *  or format of operands, print the message Incorrect operands. and exit.
          */
         if (args.length == 0) {
-            System.out.println("Please enter a command.");
-            exitGitlet();
+            throw Utils.error("Please enter a command.");
         }
         String firstArg = args[0];
         switch(firstArg) {
@@ -27,12 +26,14 @@ public class Main {
                 Repository.add(args[1]);
                 break;
             case "commit":
+                if (args.length < 2) {
+                    throw Utils.error("Please enter a commit message.");
+                }
                 validateNumArgs(args, 2);
                 Repository.commit(args[1]);
                 break;
             default:
-                System.out.println("No command with that name exists.");
-                exitGitlet();
+                throw Utils.error("No command with that name exists.");
         }
     }
     /** Exit gitlet. */
@@ -42,8 +43,7 @@ public class Main {
 
     public static void validateNumArgs(String[] args, int n) {
         if (args.length != n) {
-            System.out.println("Incorrect operands.");
-            exitGitlet();
+            throw Utils.error("Incorrect operands.");
         }
     }
 }

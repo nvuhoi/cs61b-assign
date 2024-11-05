@@ -88,7 +88,7 @@ public class Commit implements Serializable {
         writeObject(COMMIT, commitHashMap);
     }
 
-    public void saveCommit() {
+    public String saveCommit() {
         String string = "";
         for (String i  : this.getBlobs().values()) {
             string += i;
@@ -100,6 +100,7 @@ public class Commit implements Serializable {
         string += message;
         string += date.toString();
         saveCommit(sha1(string));
+        return sha1(string);
     }
 
     private static void createFile(File file) {

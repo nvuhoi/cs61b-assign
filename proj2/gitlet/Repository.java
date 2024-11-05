@@ -41,8 +41,7 @@ public class Repository {
 
     public static void init() {
         if (GITLET_DIR.exists()) {
-            System.out.println("A Gitlet version-control system already exists in the current directory.");
-            exitGitlet();
+            throw error("A Gitlet version-control system already exists in the current directory.");
         } else {
             GITLET_DIR.mkdir();
             BRANCH_DIR.mkdir();
@@ -92,8 +91,7 @@ public class Repository {
     /** Check whether init */
     private static void checkInit() {
         if (!GITLET_DIR.exists()) {
-            System.out.println("Not in an initialized Gitlet directory.");
-            exitGitlet();
+            throw error("Not in an initialized Gitlet directory.");
         }
     }
 
@@ -119,21 +117,45 @@ public class Repository {
 
         File file = Utils.join(CWD, filename);
         if (!file.exists()) {
-            System.out.println("File does not exist.");
-            exitGitlet();
+            throw error("File does not exist.");
         }
+
+        checkTheCommitVersion(filename, fileSha(filename, file));
 
         File fileSendToBlobs = join(PREPAREDCOMMIT_DIR, filename);
         copyfile(fileSendToBlobs, file);
         createFile(fileSendToBlobs);
 
-        HashMap<String, String> fileMap = getStagedMap();
-        fileMap.put(fileNameSha(filename), fileSha(filename, file));
-        writeObject(STAGING, fileMap);
+        putKeyValueInStagedMap(fileNameSha(filename), fileSha(filename, file));
         exitGitlet();
     }
 
-    /** return fileMap in STAGING */
+    /** Put key and value in stagedMap */
+    public static void putKeyValueInStagedMap(String fileNameSha, String fileSha) {
+        HashMap<String, String> fileMap = getStagedMap();
+        fileMap.put(fileNameSha, fileSha);
+        writeObject(STAGING, fileMap);
+    }
+
+    /** Check the file version in HEAD commit. If equals to add file, refuse adding,
+     *  then check stagedMap version of the file.
+     */
+    public static void checkTheCommitVersion(String filename, String fileSha) {
+        HashMap<String, String> headBlobsMap = getHeadCommitBlobsMap();
+        if (headBlobsMap.containsValue(fileSha)) {
+            removeStagedMapKey(fileNameSha(filename));
+            exitGitlet();
+        }
+    }
+
+    /** Remove key from stagedMap. */
+    public static void removeStagedMapKey(String key) {
+        HashMap<String, String> stagedMap = getStagedMap();
+        stagedMap.remove(key);
+        writeObject(STAGING, stagedMap);
+    }
+
+    /** Return fileMap in STAGING. */
     public static HashMap<String, String> getStagedMap() {
         return readObject(STAGING, HashMap.class);
     }
@@ -148,14 +170,21 @@ public class Repository {
         return sha1(filename, readContents(file));
     }
 
+    /** TODO: update branch point */
     public static void commit(String commitMessage) {
         checkInit();
+        if (StagedMapIsClear()) {
+            throw Utils.error("No changes added to the commit.");
+        }
 
         HashMap<String, String> newBlobsMap = mergeTwoMapToTarget(getHeadCommitBlobsMap(), getStagedMap());
         Commit newCommit = new Commit (getHeadCommitSha(), commitMessage, newBlobsMap);
-        newCommit.saveCommit();
+        String newCommitSha = newCommit.saveCommit();
 
         changePrepareCommit_DirFilesPathToBlobs_Dir();
+
+        changeBranchPoint(HEAD, newCommitSha);
+        cleanStagedMap();
         exitGitlet();
     }
     /** Change PrepareCommit_Dir Files' Path To Blobs_Dir and update blobsMap. */
@@ -169,10 +198,9 @@ public class Repository {
             file.renameTo(join(BLOB_DIR, filesha));
             blobsMap.put(filesha, join(BLOB_DIR, filesha));
 
-            restrictedDelete(join(PREPAREDCOMMIT_DIR, i));
         }
     }
-    /** add HashMap to TargetMap, if targetMap have same key, replace that value. And return the new HashMap */
+    /** add HashMap to TargetMap, if targetMap have same key, replace that value. And return the new HashMap. */
     public static HashMap<String, String> mergeTwoMapToTarget(HashMap<String, String> targetMap, HashMap<String, String> hashMap) {
         for (String i : hashMap.keySet()) {
             targetMap.put(i, hashMap.get(i));
@@ -193,13 +221,23 @@ public class Repository {
     public static Commit getHeadCommit() {
         return getCommit(getHeadCommitSha());
     }
-    /** get head commit blobsMap */
+    /** get head commit blobsMap. */
     public static HashMap<String, String> getHeadCommitBlobsMap() {
         Commit headCommit = getHeadCommit();
         return headCommit.getBlobs();
     }
-    /** get blobsMap */
+    /** get blobsMap. */
     public static HashMap<String, File> getBlobsMap() {
         return readObject(STAGING, HashMap.class);
+    }
+    /** Clean staging area */
+    public static void cleanStagedMap() {
+        HashMap<String, String > Map = getStagedMap();
+        Map.clear();
+        writeObject(STAGING, Map);
+    }
+    /** Check whether stagedMap is clear */
+    public static boolean StagedMapIsClear() {
+        return getStagedMap().isEmpty();
     }
 }
