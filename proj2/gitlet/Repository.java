@@ -36,8 +36,10 @@ public class Repository {
     public static final File BLOBS = join(BLOB_DIR, "blobsMap");
     /** The stagedMap */
     public static final File STAGING = join(STAGED_DIR, "stagedMap");
-    /** prepared commit file director. */
+    /** Prepare commit file director. */
     public static final File PREPAREDCOMMIT_DIR = join(BLOB_DIR, "prepareCommit");
+    /** Prepare remove fileSet. */
+    public static final File REMOVE = join(STAGED_DIR, "prepareRemove");
 
     public static void init() {
         if (GITLET_DIR.exists()) {
@@ -53,6 +55,7 @@ public class Repository {
             createFile(BLOBS);
             createFile(STAGING);
             createFile(COMMIT);
+            createFile(REMOVE);
 
             HashMap<String, File> blogsMap = new HashMap<>();
             writeObject(BLOBS, blogsMap);
@@ -62,6 +65,9 @@ public class Repository {
 
             HashMap<String, File> commitHashMap = new HashMap<>();
             writeObject(COMMIT, commitHashMap);
+
+            HashSet<String> removeSet = new HashSet<>();
+            writeObject(REMOVE, removeSet);
 
             Commit firstCommit = new Commit();
             String firstCommitSha = Utils.sha1("firstCommit");
@@ -168,20 +174,20 @@ public class Repository {
         return sha1(filename, readContents(file));
     }
 
-    /** TODO: update branch point */
     public static void commit(String commitMessage) {
         checkInit();
         if (StagedMapIsClear()) {
             throw Utils.error("No changes added to the commit.");
         }
 
-        HashMap<String, String> newBlobsMap = mergeTwoMapToTarget(getHeadCommitBlobsMap(), getStagedMap());
-        Commit newCommit = new Commit (getHeadCommitSha(), commitMessage, newBlobsMap);
+        HashMap<String, String> newBlobsMap = createNewCommitBlobsMap();
+        Commit newCommit = new Commit (getHeadCommitSha(), commitMessage, newBlobsMap, getHeadCommitBranch());
         String newCommitSha = newCommit.saveCommit();
 
         changePrepareCommit_DirFilesPathToBlobs_Dir();
 
         changeBranchPoint(HEAD, newCommitSha);
+        changeBranchPoint(join(BRANCH_DIR, getHeadCommitBranch()), newCommitSha);
         cleanStagedMap();
         exitGitlet();
     }
@@ -205,6 +211,17 @@ public class Repository {
             targetMap.put(i, hashMap.get(i));
         }
         return targetMap;
+    }
+    /** Create new commit blobsMap */
+    public static HashMap<String, String> createNewCommitBlobsMap() {
+        HashMap<String, String> newBlobsMap = mergeTwoMapToTarget(getHeadCommitBlobsMap(), getStagedMap());
+        if (!getRemoveSet().isEmpty()) {
+            for (String i : getRemoveSet()) {
+                newBlobsMap.remove(i);
+            }
+        }
+        clearRemoveSet();
+        return newBlobsMap;
     }
 
     /** get Sha-1 commit. */
@@ -238,5 +255,46 @@ public class Repository {
     /** Check whether stagedMap is clear */
     public static boolean StagedMapIsClear() {
         return getStagedMap().isEmpty();
+    }
+
+    /** Get prepareRemoveSet. */
+    public static HashSet<String> getRemoveSet() {
+        return readObject(REMOVE, HashSet.class);
+    }
+    /** Get HEAD commit's branch. */
+    public static String getHeadCommitBranch() {
+        Commit headCommit = getHeadCommit();
+        return headCommit.getBranch();
+    }
+
+    /** Add fileNameSha of filename in REMOVE. */
+    public static void addFileInRemove(String filename) {
+        writeObject(REMOVE, getRemoveSet().add(fileNameSha(filename)));
+    }
+
+    /** Clear REMOVE */
+    public static void clearRemoveSet() {
+        HashSet<String> set = getRemoveSet();
+        set.clear();
+        writeObject(REMOVE, set);
+    }
+    public static void rm(String filename) {
+        checkInit();
+        if (getHeadCommitBlobsMap().containsKey(fileNameSha(filename))) {
+            File file1 = join(CWD, filename);
+            restrictedDelete(file1);
+        } else if (getStagedMap().containsKey(fileNameSha(filename))) {
+            ;
+        } else {
+            throw error("No reason to remove the file.");
+        }
+
+        addFileInRemove(filename);
+        removeStagedMapKey(fileNameSha(filename));
+
+        File file = join(PREPAREDCOMMIT_DIR, filename);
+        file.delete();
+
+        exitGitlet();
     }
 }
