@@ -215,7 +215,7 @@ public class Repository {
     /** Create new commit blobsMap */
     public static HashMap<String, String> createNewCommitBlobsMap() {
         HashMap<String, String> newBlobsMap = mergeTwoMapToTarget(getHeadCommitBlobsMap(), getStagedMap());
-        if (!getRemoveSet().isEmpty()) {
+        if (! (getRemoveSet().isEmpty())) {
             for (String i : getRemoveSet()) {
                 newBlobsMap.remove(i);
             }
@@ -269,7 +269,9 @@ public class Repository {
 
     /** Add fileNameSha of filename in REMOVE. */
     public static void addFileInRemove(String filename) {
-        writeObject(REMOVE, getRemoveSet().add(fileNameSha(filename)));
+        HashSet<String> removeSet = getRemoveSet();
+        removeSet.add(fileNameSha(filename));
+        writeObject(REMOVE, removeSet);
     }
 
     /** Clear REMOVE */
