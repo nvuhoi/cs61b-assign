@@ -27,10 +27,8 @@ public class Repository {
     public static final File STAGED_DIR = join(GITLET_DIR, "staged");
     /** The blobs directory to save files. */
     public static final File BLOB_DIR = join(GITLET_DIR, "blobs");
-    /** HEAD directory. */
-    public static final File HEAD_DIR = join(BRANCH_DIR, "HEAD");
     /** The HEAD pointer file */
-    public static final File HEAD = join(HEAD_DIR, "head");
+    public static final File HEAD = join(BRANCH_DIR, "HEAD");
     /** The commit record map */
     public static final File COMMIT = join(LOGS_DIR, "commitMap");
     /** The blobs file save blogMap */
@@ -42,9 +40,9 @@ public class Repository {
     /** Prepare remove fileSet. */
     public static final File REMOVE = join(STAGED_DIR, "prepareRemove");
     /** Remove directory. */
-    public static final File REMOVE_DIR = join(GITLET_DIR, "HEAD");
-    /** HEAD point branch. */
-    public static final File HEADPOINTBRANCH = join(HEAD_DIR, "pointBranch");
+    public static final File REMOVE_DIR = join(GITLET_DIR, "remove");
+    /** HEAD point branch */
+    public static final File HEADPOINTBRANCH = join(GITLET_DIR, "HeadPoint.txt");
 
     public static void init() {
         if (GITLET_DIR.exists()) {
@@ -57,7 +55,6 @@ public class Repository {
             BLOB_DIR.mkdir();
             PREPAREDCOMMIT_DIR.mkdir();
             REMOVE_DIR.mkdir();
-            HEAD_DIR.mkdir();
 
             createFile(BLOBS);
             createFile(STAGING);
@@ -383,4 +380,8 @@ public class Repository {
         exitGitlet();
     }
 
+    /** Change HeadPointBranch. */
+    private static void setHeadPointBranch(String newBranch) {
+        writeContents(HEADPOINTBRANCH, newBranch);
+    }
 }

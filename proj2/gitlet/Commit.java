@@ -64,7 +64,6 @@ public class Commit implements Serializable {
         return blobs;
     }
 
-
     public Commit(String parent1, String message, HashMap<String, String> blobsMap) {
         this(parent1, null, message, blobsMap);
     }

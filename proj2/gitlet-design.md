@@ -112,10 +112,10 @@
 > find 命令。
 ##### 49. public static final File REMOVE_DIR = join(GITLET_DIR, "remove");
 > 儲存 rm file 的地方。
-##### 50. public static final File HEAD_DIR = join(GITLET_DIR, "remove");
->  /** HEAD directory. */
-##### 51. public static final File HEADPOINTBRANCH = join(HEAD_DIR, "pointBranch");
-> /** HEAD point branch. */
+##### 50. public static final File HEADPOINTBRANCH = join(GITLET_DIR, "HeadPoint.txt");
+> /** HEAD point branch */
+##### 51. private static void setHeadPointBranch(String newBranch)
+> 改變 HEAD 指向的分支。
 
 
 ### Class Commit
