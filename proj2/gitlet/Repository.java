@@ -2,8 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 import static gitlet.Utils.*;
 
@@ -134,7 +133,7 @@ public class Repository {
     }
 
     /** Put key and value in stagedMap */
-    public static void putKeyValueInStagedMap(String fileNameSha, String fileSha) {
+    private static void putKeyValueInStagedMap(String fileNameSha, String fileSha) {
         HashMap<String, String> fileMap = getStagedMap();
         fileMap.put(fileNameSha, fileSha);
         writeObject(STAGING, fileMap);
@@ -143,7 +142,7 @@ public class Repository {
     /** Check the file version in HEAD commit. If equals to add file, refuse adding,
      *  then check stagedMap version of the file.
      */
-    public static void checkTheCommitVersion(String filename, String fileSha) {
+    private static void checkTheCommitVersion(String filename, String fileSha) {
         HashMap<String, String> headBlobsMap = getHeadCommitBlobsMap();
         if (headBlobsMap.containsValue(fileSha)) {
             removeStagedMapKey(fileNameSha(filename));
@@ -153,24 +152,24 @@ public class Repository {
     }
 
     /** Remove key from stagedMap. */
-    public static void removeStagedMapKey(String key) {
+    private static void removeStagedMapKey(String key) {
         HashMap<String, String> stagedMap = getStagedMap();
         stagedMap.remove(key);
         writeObject(STAGING, stagedMap);
     }
 
     /** Return fileMap in STAGING. */
-    public static HashMap<String, String> getStagedMap() {
+    private static HashMap<String, String> getStagedMap() {
         return readObject(STAGING, HashMap.class);
     }
 
     /** Return Sha-1 of filename. */
-    public static String fileNameSha(String filename) {
+    private static String fileNameSha(String filename) {
         return sha1(filename);
     }
 
     /** Return Sha-1 of filename and contents. */
-    public static String fileSha(String filename, File file) {
+    private static String fileSha(String filename, File file) {
         return sha1(filename, readContents(file));
     }
 
@@ -192,7 +191,7 @@ public class Repository {
         exitGitlet();
     }
     /** Change PrepareCommit_Dir Files' Path To Blobs_Dir and update blobsMap. */
-    public static void changePrepareCommit_DirFilesPathToBlobs_Dir() {
+    private static void changePrepareCommit_DirFilesPathToBlobs_Dir() {
         HashMap<String, File> blobsMap = getBlobsMap();
         for (String i : plainFilenamesIn(PREPAREDCOMMIT_DIR)) {
 
@@ -206,14 +205,14 @@ public class Repository {
         writeObject(BLOBS, blobsMap);
     }
     /** add HashMap to TargetMap, if targetMap have same key, replace that value. And return the new HashMap. */
-    public static HashMap<String, String> mergeTwoMapToTarget(HashMap<String, String> targetMap, HashMap<String, String> hashMap) {
+    private static HashMap<String, String> mergeTwoMapToTarget(HashMap<String, String> targetMap, HashMap<String, String> hashMap) {
         for (String i : hashMap.keySet()) {
             targetMap.put(i, hashMap.get(i));
         }
         return targetMap;
     }
     /** Create new commit blobsMap */
-    public static HashMap<String, String> createNewCommitBlobsMap() {
+    private static HashMap<String, String> createNewCommitBlobsMap() {
         HashMap<String, String> newBlobsMap = mergeTwoMapToTarget(getHeadCommitBlobsMap(), getStagedMap());
         if (! (getRemoveSet().isEmpty())) {
             for (String i : getRemoveSet()) {
@@ -225,57 +224,57 @@ public class Repository {
     }
 
     /** get Sha-1 commit. */
-    public static Commit getCommit (String sha) {
+    private static Commit getCommit (String sha) {
         HashMap<String, File> commitHashMap = readObject(COMMIT, HashMap.class);
         return readObject(commitHashMap.get(sha), Commit.class);
     }
-    /** get head commit's Sha-1. */
-    public static String getHeadCommitSha() {
+    /** get HEAD commit's Sha-1. */
+    private static String getHeadCommitSha() {
         return readContentsAsString(HEAD);
     }
     /** get head commit. */
-    public static Commit getHeadCommit() {
+    private static Commit getHeadCommit() {
         return getCommit(getHeadCommitSha());
     }
     /** get head commit blobsMap. */
-    public static HashMap<String, String> getHeadCommitBlobsMap() {
+    private static HashMap<String, String> getHeadCommitBlobsMap() {
         Commit headCommit = getHeadCommit();
         return headCommit.getBlobs();
     }
     /** get blobsMap. */
-    public static HashMap<String, File> getBlobsMap() {
+    private static HashMap<String, File> getBlobsMap() {
         return readObject(BLOBS, HashMap.class);
     }
     /** Clean staging area */
-    public static void cleanStagedMap() {
+    private static void cleanStagedMap() {
         HashMap<String, String> Map = getStagedMap();
         Map.clear();
         writeObject(STAGING, Map);
     }
     /** Check whether stagedMap is clear */
-    public static boolean StagedMapIsClear() {
+    private static boolean StagedMapIsClear() {
         return getStagedMap().isEmpty();
     }
 
     /** Get prepareRemoveSet. */
-    public static HashSet<String> getRemoveSet() {
+    private static HashSet<String> getRemoveSet() {
         return readObject(REMOVE, HashSet.class);
     }
-    /** Get HEAD commit's branch. */
-    public static String getHeadCommitBranch() {
+    /** Get branch of HEAD commit. */
+    private static String getHeadCommitBranch() {
         Commit headCommit = getHeadCommit();
         return headCommit.getBranch();
     }
 
     /** Add fileNameSha of filename in REMOVE. */
-    public static void addFileInRemove(String filename) {
+    private static void addFileInRemove(String filename) {
         HashSet<String> removeSet = getRemoveSet();
         removeSet.add(fileNameSha(filename));
         writeObject(REMOVE, removeSet);
     }
 
     /** Clear REMOVE */
-    public static void clearRemoveSet() {
+    private static void clearRemoveSet() {
         HashSet<String> set = getRemoveSet();
         set.clear();
         writeObject(REMOVE, set);
@@ -307,7 +306,7 @@ public class Repository {
     }
 
     /** Print log history of parent1. */
-    public static void printLogHistoryFirstParent() {
+    private static void printLogHistoryFirstParent() {
 
         Commit commit = getHeadCommit();
         String commitId = getHeadCommitSha();
@@ -318,9 +317,12 @@ public class Repository {
             String string1 = "commit " + commitId;
             System.out.println(string1);
 
-            String string2 = "Date: " + commit.getDate().toString();
-
+            Date currentDate = commit.getDate();
+            Formatter formatter = new Formatter(Locale.US);
+            formatter.format("%ta %tb %te %tT %tY %tz", currentDate, currentDate, currentDate, currentDate, currentDate, currentDate);
+            String string2 = "Date: " + formatter.toString();
             System.out.println(string2);
+
             System.out.println(commit.getMessage());
             System.out.println();
 
@@ -336,9 +338,12 @@ public class Repository {
         String string1 = "commit " + firstCommitId;
         System.out.println(string1);
 
-        String string2 = "Date: " + firstCommit.getDate().toString();
-
+        Date currentDate = firstCommit.getDate();
+        Formatter formatter = new Formatter(Locale.US);
+        formatter.format("%ta %tb %te %tT %tY %tz", currentDate, currentDate, currentDate, currentDate, currentDate, currentDate);
+        String string2 = "Date: " + formatter.toString();
         System.out.println(string2);
+
         System.out.println(firstCommit.getMessage());
         System.out.println();
     }

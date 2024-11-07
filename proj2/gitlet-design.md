@@ -9,7 +9,7 @@
 > 呼叫 gitlet 命令的地方，主要透過呼叫 Repository 的 method 來完成命令。
 
 ### Class Repository
-> 處理處藏庫邏輯的地方，會創建各個資料夾處存訊息。
+> 處理處藏庫邏輯的地方，會創建各個資料夾儲存訊息。
 
 #### Fields
 ##### 1. public static final File CWD = new File(System.getProperty("user.dir"));
@@ -25,7 +25,7 @@
 ##### 6. private static void changeBranchPoint(File pointer, String sha)
 > 改變分支指向。
 ##### 7. private static File createBranch(String branchName)
-> 創造分支並處存在 Branches 資料夾，分支是包含 commitSha 的文件。
+> 創造分支並儲存在 Branches 資料夾，分支是包含 commitSha 的文件。
 ##### 8. private static void checkInit()
 > 查看是否初始化過了。
 ##### 9. private static void createFile(File file)
@@ -35,9 +35,76 @@
 ##### 11. private static void exitGitlet()
 > 離開 gitlet ，強制停止。
 ##### 12. public static void add(String filename)
->　執行 add 命令，將 filename 複製一份到 Stage 資料夾。
+> add 命令。
 ##### 13. public static final File BLOB_DIR = join(GITLET_DIR, "blobs");
 > /** The blobs directory to save files. */
+##### 14. public static final File STAGED_DIR = join(GITLET_DIR, "staged");
+> /** The staged directory to save stagedFile */
+##### 15. public static final File HEAD = join(BRANCH_DIR, "HEAD");
+> /** The HEAD pointer file */
+##### 16. public static final File COMMIT = join(LOGS_DIR, "commitMap");
+> /** The commit record map */
+##### 17. public static final File BLOBS = join(BLOB_DIR, "blobsMap");
+> /** The blobs file save blogMap */
+##### 18. public static final File STAGING = join(STAGED_DIR, "stagedMap");
+> /** The stagedMap */
+##### 19. public static final File PREPAREDCOMMIT_DIR = join(BLOB_DIR, "prepareCommit");
+> /** Prepare commit file director. */
+##### 20. public static final File REMOVE = join(STAGED_DIR, "prepareRemove");
+> /** Prepare remove fileSet. */
+##### 21. private static void putKeyValueInStagedMap(String fileNameSha, String fileSha)
+> 把一對 key 和 value 放進 StagedMap。
+##### 22.private static void checkTheCommitVersion(String filename, String fileSha)
+> 確認儲存在 HEAD commit 裡的文件版本。若與即將 add 的版本相同，則拒絕 add 的行動，
+> 同時把 StagedMap 中相同文件名的 key 刪除。
+##### 23. private static void removeStagedMapKey(String key)
+> 刪除 StagedMap 中的 key 。
+##### 24. private static HashMap<String, String> getStagedMap()
+> 傳回儲存在 STAGING 中的 StagedMap 。
+##### 25. private static String fileNameSha(String filename)
+> /** Return Sha-1 of filename. */
+##### 26. private static String fileSha(String filename, File file)
+> /** Return Sha-1 of filename and contents. */
+##### 27. public static void commit(String commitMessage)
+> commit 命令。
+##### 28. private static void changePrepareCommit_DirFilesPathToBlobs_Dir()
+> /** Change PrepareCommit_Dir Files' Path To Blobs_Dir and update blobsMap. */
+##### 29. private static HashMap<String, String> mergeTwoMapToTarget(HashMap<String, String> targetMap, HashMap<String, String> hashMap)
+> 把 hashMap 中的鍵值複製一份到 targetMap ，若有相同 key 則覆蓋掉 target 原本的鍵值，
+> 最後回傳新的 targetMap 。
+##### 30. private static HashMap<String, String> createNewCommitBlobsMap()
+> 建立新的 commit 中需要的 blobsMap 並回傳。
+##### 31.private static Commit getCommit (String sha)
+> 回傳 sha 指向的 commit 。
+##### 32. private static String getHeadCommitSha()
+> 回傳 HEAD 指向的 commit 的 sha-1 。
+##### 33. private static Commit getHeadCommit()
+> 回傳 HEAD 指向的 commit 。
+##### 34. private static HashMap<String, String> getHeadCommitBlobsMap()
+> 回傳 HEAD 指向的 commit 的 blobsMap 。
+##### 35. private static HashMap<String, File> getBlobsMap()
+> 回傳儲存在 BLOBS 中的 blobsMap 。
+##### 36. private static void cleanStagedMap()
+> 清空 StagedMap 。
+##### 37. private static boolean StagedMapIsClear()
+> 查看 StagedMap 是否是空的。
+##### 38. private static HashSet<String> getRemoveSet()
+> 回傳儲存在 REMOVE 中的 removeSet 。
+##### 39. private static String getHeadCommitBranch()
+> 回傳 HEAD 指向的分支。
+##### 40. private static void addFileInRemove(String filename)
+> 將 filename 的 sha-1 值加進 removeSet 。
+##### 41. private static void clearRemoveSet()
+> 清空 removeSet 。
+##### 42. public static void rm(String filename)
+> rm 命令。
+##### 43. public static void log()
+> log 命令。
+##### 44. private static void printLogHistoryFirstParent()
+> 輸出 parent log 歷史紀錄。
+##### 45. private static void printFirstCommit(Commit firstCommit, String firstCommitId)
+> 輔助 printLogHistoryFirstParent 輸出第一次的 commit 紀錄。
+
 
 ### Class Commit
 > 有關commit事項的實現細節。
@@ -64,14 +131,14 @@
 ## Algorithms
 
 ### init
-會創建 .gitlet 資料夾處存跟 gitlet 有關的事項。
+會創建 .gitlet 資料夾儲存跟 gitlet 有關的事項。
 
 .gitlet 包含:
 
-1. branches 資料夾處存分支
-2. logs 資料夾處存 commit 資料
-3. Staged 資料夾處存 staged 區域的文件
-4. blobs 資料夾處存 commit file
+1. branches 資料夾儲存分支
+2. logs 資料夾儲存 commit 資料
+3. Staged 資料夾儲存 staged 區域的文件
+4. blobs 資料夾儲存 commit file
 
 branches 初始化後包含:
 1. HEAD 指向 firstCommit
@@ -89,7 +156,7 @@ firstCommit 包含:
 迭代 Staged 資料夾內的文件名稱查看是否覆蓋，
 若 staged 區不存在則複製一份 file 到 staged 區。
 
-另外在 Blogs 資料夾處存同名稱最新的副本(若未 commit 就 add 同文件名
+另外在 Blogs 資料夾儲存同名稱最新的副本(若未 commit 就 add 同文件名
 會覆蓋掉，直到 commit 才會改名成 Sha-1 的文件名。)
 ## Persistence
 
