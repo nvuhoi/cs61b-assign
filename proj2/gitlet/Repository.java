@@ -301,6 +301,7 @@ public class Repository {
     }
 
     public static void log() {
+        checkInit();
         printLogHistoryFirstParent();
         exitGitlet();
     }
@@ -313,9 +314,13 @@ public class Repository {
 
         while (commit.getParent1() != null) {
             System.out.println("===");
-            String string = "commit " + commitId;
-            System.out.println(string);
-            System.out.println(commit.getDate().toString());
+
+            String string1 = "commit " + commitId;
+            System.out.println(string1);
+
+            String string2 = "Date: " + commit.getDate().toString();
+
+            System.out.println(string2);
             System.out.println(commit.getMessage());
             System.out.println();
 
@@ -327,9 +332,13 @@ public class Repository {
 
     private static void printFirstCommit(Commit firstCommit, String firstCommitId) {
         System.out.println("===");
-        String string = "commit " + firstCommitId;
-        System.out.println(string);
-        System.out.println(firstCommit.getDate().toString());
+
+        String string1 = "commit " + firstCommitId;
+        System.out.println(string1);
+
+        String string2 = "Date: " + firstCommit.getDate().toString();
+
+        System.out.println(string2);
         System.out.println(firstCommit.getMessage());
         System.out.println();
     }
