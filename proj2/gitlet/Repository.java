@@ -282,8 +282,8 @@ public class Repository {
     public static void rm(String filename) {
         checkInit();
         if (getHeadCommitBlobsMap().containsKey(fileNameSha(filename))) {
-            File file1 = join(CWD, filename);
-            restrictedDelete(file1);
+            File file = join(CWD, filename);
+            restrictedDelete(file);
         } else if (getStagedMap().containsKey(fileNameSha(filename))) {
             ;
         } else {
@@ -299,6 +299,7 @@ public class Repository {
         exitGitlet();
     }
 
+    /** TODO: For merge commits (those that have two parent commits), add a line just below the first. */
     public static void log() {
         checkInit();
         printLogHistoryFirstParent();
@@ -312,19 +313,7 @@ public class Repository {
         String commitId = getHeadCommitSha();
 
         while (commit.getParent1() != null) {
-            System.out.println("===");
-
-            String string1 = "commit " + commitId;
-            System.out.println(string1);
-
-            Date currentDate = commit.getDate();
-            Formatter formatter = new Formatter(Locale.US);
-            formatter.format("%ta %tb %te %tT %tY %tz", currentDate, currentDate, currentDate, currentDate, currentDate, currentDate);
-            String string2 = "Date: " + formatter.toString();
-            System.out.println(string2);
-
-            System.out.println(commit.getMessage());
-            System.out.println();
+            printCommitInfo(commit, commitId);
 
             commitId = commit.getParent1();
             commit = getCommit(commit.getParent1());
@@ -333,18 +322,34 @@ public class Repository {
     }
 
     private static void printFirstCommit(Commit firstCommit, String firstCommitId) {
+        printCommitInfo(firstCommit, firstCommitId);
+    }
+
+    /** Print commit information. */
+    private static void printCommitInfo(Commit commit, String commitId) {
         System.out.println("===");
 
-        String string1 = "commit " + firstCommitId;
+        String string1 = "commit " + commitId;
         System.out.println(string1);
 
-        Date currentDate = firstCommit.getDate();
+        Date currentDate = commit.getDate();
         Formatter formatter = new Formatter(Locale.US);
         formatter.format("%ta %tb %te %tT %tY %tz", currentDate, currentDate, currentDate, currentDate, currentDate, currentDate);
         String string2 = "Date: " + formatter.toString();
         System.out.println(string2);
 
-        System.out.println(firstCommit.getMessage());
+        System.out.println(commit.getMessage());
         System.out.println();
     }
+
+    public static void global_log() {
+        for (String commitId : plainFilenamesIn(LOGS_DIR)) {
+            if (!commitId.equals("commitMap")) {
+                Commit commit = getCommit(commitId);
+                printCommitInfo(commit, commitId);
+            }
+        }
+    }
+
+
 }

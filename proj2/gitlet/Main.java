@@ -40,6 +40,10 @@ public class Main {
                 validateNumArgs(args, 1);
                 Repository.log();
                 break;
+            case "global-log":
+                validateNumArgs(args,1);
+                Repository.global_log();
+                break;
             default:
                 throw Utils.error("No command with that name exists.");
         }
