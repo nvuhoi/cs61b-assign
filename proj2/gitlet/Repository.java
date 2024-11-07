@@ -299,4 +299,38 @@ public class Repository {
 
         exitGitlet();
     }
+
+    public static void log() {
+        printLogHistoryFirstParent();
+        exitGitlet();
+    }
+
+    /** Print log history of parent1. */
+    public static void printLogHistoryFirstParent() {
+
+        Commit commit = getHeadCommit();
+        String commitId = getHeadCommitSha();
+
+        while (commit.getParent1() != null) {
+            System.out.println("===");
+            String string = "commit " + commitId;
+            System.out.println(string);
+            System.out.println(commit.getDate().toString());
+            System.out.println(commit.getMessage());
+            System.out.println();
+
+            commitId = commit.getParent1();
+            commit = getCommit(commit.getParent1());
+        }
+        printFirstCommit(commit, commitId);
+    }
+
+    private static void printFirstCommit(Commit firstCommit, String firstCommitId) {
+        System.out.println("===");
+        String string = "commit " + firstCommitId;
+        System.out.println(string);
+        System.out.println(firstCommit.getDate().toString());
+        System.out.println(firstCommit.getMessage());
+        System.out.println();
+    }
 }
