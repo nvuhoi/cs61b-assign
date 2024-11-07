@@ -52,10 +52,6 @@ public class Main {
                 throw Utils.error("No command with that name exists.");
         }
     }
-    /** Exit gitlet. */
-    private static void exitGitlet() {
-        System.exit(0);
-    }
 
     public static void validateNumArgs(String[] args, int n) {
         if (args.length != n) {
