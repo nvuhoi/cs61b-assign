@@ -34,8 +34,6 @@ public class Commit implements Serializable {
     private String parent2;
     /** A mapping of file names to blob references. */
     private HashMap<String, String> blobs;
-    /** Commit's branch. */
-    private String branch;
 
     /** first commit */
     public Commit() {
@@ -44,7 +42,6 @@ public class Commit implements Serializable {
         this.message = "initial commit";
         this.blobs = new HashMap<>();
         this.date = new Date(0);
-        this.branch = "master";
     }
 
     public String getParent1() {
@@ -67,20 +64,17 @@ public class Commit implements Serializable {
         return blobs;
     }
 
-    public String getBranch() {
-        return branch;
-    }
-    public Commit(String parent1, String message, HashMap<String, String> blobsMap, String branch) {
-        this(parent1, null, message, blobsMap, branch);
+
+    public Commit(String parent1, String message, HashMap<String, String> blobsMap) {
+        this(parent1, null, message, blobsMap);
     }
 
-    public Commit(String parent1, String parent2, String message, HashMap<String, String> blobsMap, String branch) {
+    public Commit(String parent1, String parent2, String message, HashMap<String, String> blobsMap) {
         this.parent1 = parent1;
         this.parent2 = parent2;
         this.message = message;
         this.blobs = blobsMap;
         this.date = new Date();
-        this.branch = branch;
     }
 
     /** Serialize commit as file. */
@@ -107,7 +101,6 @@ public class Commit implements Serializable {
         string += parent1;
         string += message;
         string += date.toString();
-        string += branch;
         saveCommit(sha1(string));
         return sha1(string);
     }

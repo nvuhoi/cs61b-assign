@@ -27,8 +27,10 @@ public class Repository {
     public static final File STAGED_DIR = join(GITLET_DIR, "staged");
     /** The blobs directory to save files. */
     public static final File BLOB_DIR = join(GITLET_DIR, "blobs");
+    /** HEAD directory. */
+    public static final File HEAD_DIR = join(BRANCH_DIR, "HEAD");
     /** The HEAD pointer file */
-    public static final File HEAD = join(BRANCH_DIR, "HEAD");
+    public static final File HEAD = join(HEAD_DIR, "head");
     /** The commit record map */
     public static final File COMMIT = join(LOGS_DIR, "commitMap");
     /** The blobs file save blogMap */
@@ -40,7 +42,9 @@ public class Repository {
     /** Prepare remove fileSet. */
     public static final File REMOVE = join(STAGED_DIR, "prepareRemove");
     /** Remove directory. */
-    public static final File REMOVE_DIR = join(GITLET_DIR, "remove");
+    public static final File REMOVE_DIR = join(GITLET_DIR, "HEAD");
+    /** HEAD point branch. */
+    public static final File HEADPOINTBRANCH = join(HEAD_DIR, "pointBranch");
 
     public static void init() {
         if (GITLET_DIR.exists()) {
@@ -53,11 +57,13 @@ public class Repository {
             BLOB_DIR.mkdir();
             PREPAREDCOMMIT_DIR.mkdir();
             REMOVE_DIR.mkdir();
+            HEAD_DIR.mkdir();
 
             createFile(BLOBS);
             createFile(STAGING);
             createFile(COMMIT);
             createFile(REMOVE);
+            createFile(HEADPOINTBRANCH);
 
             HashMap<String, File> blogsMap = new HashMap<>();
             writeObject(BLOBS, blogsMap);
@@ -70,6 +76,8 @@ public class Repository {
 
             HashSet<String> removeSet = new HashSet<>();
             writeObject(REMOVE, removeSet);
+
+            writeContents(HEADPOINTBRANCH, "master");
 
             Commit firstCommit = new Commit();
             String firstCommitSha = Utils.sha1("firstCommit");
@@ -183,13 +191,13 @@ public class Repository {
         }
 
         HashMap<String, String> newBlobsMap = createNewCommitBlobsMap();
-        Commit newCommit = new Commit (getHeadCommitSha(), commitMessage, newBlobsMap, getHeadCommitBranch());
+        Commit newCommit = new Commit (getHeadCommitSha(), commitMessage, newBlobsMap);
         String newCommitSha = newCommit.saveCommit();
 
         changePrepareCommit_DirFilesPathToBlobs_Dir();
 
         changeBranchPoint(HEAD, newCommitSha);
-        changeBranchPoint(join(BRANCH_DIR, getHeadCommitBranch()), newCommitSha);
+        changeBranchPoint(join(BRANCH_DIR, getHeadPointBranch()), newCommitSha);
         cleanStagedMap();
         exitGitlet();
     }
@@ -266,9 +274,8 @@ public class Repository {
         return readObject(REMOVE, HashSet.class);
     }
     /** Get branch of HEAD commit. */
-    private static String getHeadCommitBranch() {
-        Commit headCommit = getHeadCommit();
-        return headCommit.getBranch();
+    private static String getHeadPointBranch() {
+        return readContentsAsString(HEADPOINTBRANCH);
     }
 
     /** Add fileNameSha of filename in REMOVE. */
