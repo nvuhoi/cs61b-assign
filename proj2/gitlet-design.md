@@ -93,7 +93,7 @@
 ##### 39. private static String getHeadCommitBranch()
 > 回傳 HEAD 指向的分支。
 ##### 40. private static void addFileInRemove(String filename)
-> 將 filename 值加進 removeSet 。
+> 將 filename 的 sha-1 值加進 removeSet 。
 ##### 41. private static void clearRemoveSet()
 > 清空 removeSet 。
 ##### 42. public static void rm(String filename)
@@ -110,6 +110,9 @@
 > global-log 命令。
 ##### 48. public static void find(String commitMessage)
 > find 命令。
+##### 49. public static final File REMOVE_DIR = join(GITLET_DIR, "remove");
+> 儲存 rm file 的地方。
+##### 50. 
 
 
 ### Class Commit

@@ -39,6 +39,8 @@ public class Repository {
     public static final File PREPAREDCOMMIT_DIR = join(BLOB_DIR, "prepareCommit");
     /** Prepare remove fileSet. */
     public static final File REMOVE = join(STAGED_DIR, "prepareRemove");
+    /** Remove directory. */
+    public static final File REMOVE_DIR = join(GITLET_DIR, "remove");
 
     public static void init() {
         if (GITLET_DIR.exists()) {
@@ -50,6 +52,7 @@ public class Repository {
             STAGED_DIR.mkdir();
             BLOB_DIR.mkdir();
             PREPAREDCOMMIT_DIR.mkdir();
+            REMOVE_DIR.mkdir();
 
             createFile(BLOBS);
             createFile(STAGING);
@@ -216,7 +219,9 @@ public class Repository {
         HashMap<String, String> newBlobsMap = mergeTwoMapToTarget(getHeadCommitBlobsMap(), getStagedMap());
         if (! (getRemoveSet().isEmpty())) {
             for (String i : getRemoveSet()) {
-                newBlobsMap.remove(i);
+                newBlobsMap.remove(fileNameSha(i));
+                File file = join(REMOVE_DIR, i);
+                file.delete();
             }
         }
         clearRemoveSet();
@@ -269,7 +274,7 @@ public class Repository {
     /** Add fileNameSha of filename in REMOVE. */
     private static void addFileInRemove(String filename) {
         HashSet<String> removeSet = getRemoveSet();
-        removeSet.add(fileNameSha(filename));
+        removeSet.add(filename);
         writeObject(REMOVE, removeSet);
     }
 
@@ -296,6 +301,8 @@ public class Repository {
         File file = join(PREPAREDCOMMIT_DIR, filename);
         file.delete();
 
+        File rmFilename = join(REMOVE_DIR, filename);
+        createFile(rmFilename);
         exitGitlet();
     }
 
@@ -343,6 +350,7 @@ public class Repository {
     }
 
     public static void global_log() {
+        checkInit();
         for (String commitId : plainFilenamesIn(LOGS_DIR)) {
             if (!commitId.equals("commitMap")) {
                 Commit commit = getCommit(commitId);
@@ -352,6 +360,8 @@ public class Repository {
     }
 
     public static void find(String commitMessage) {
+        checkInit();
+
         boolean haveFile = false;
         for (String commitId : plainFilenamesIn(LOGS_DIR)) {
             if (!commitId.equals("commitMap")) {
@@ -365,6 +375,5 @@ public class Repository {
         if (!haveFile) { System.out.println("Found no commit with that message."); }
         exitGitlet();
     }
-
 
 }
