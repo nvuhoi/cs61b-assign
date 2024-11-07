@@ -104,8 +104,10 @@
 > 輸出 parent log 歷史紀錄。
 ##### 45. private static void printFirstCommit(Commit firstCommit, String firstCommitId)
 > 輔助 printLogHistoryFirstParent 輸出第一次的 commit 紀錄。
-##### 46.private static void printCommitInfo(Commit commit, String commitId)
+##### 46. private static void printCommitInfo(Commit commit, String commitId)
 > 輸出給定的 commit 的資訊。
+##### 47. public static void global_log()
+> global-log 命令。
 
 
 ### Class Commit

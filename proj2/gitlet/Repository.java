@@ -351,5 +351,19 @@ public class Repository {
         }
     }
 
+    public static void find(String commitMessage) {
+        boolean haveFile = false;
+        for (String commitId : plainFilenamesIn(LOGS_DIR)) {
+            if (!commitId.equals("commitMap")) {
+                Commit commit = getCommit(commitId);
+                if (commit.getMessage().equals(commitMessage)) {
+                    haveFile = true;
+                    System.out.println(commitId);
+                }
+            }
+        }
+        if (!haveFile) { System.out.println("Found no commit with that message."); }
+        exitGitlet();
+    }
 
 }

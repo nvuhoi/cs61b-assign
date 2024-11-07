@@ -44,6 +44,10 @@ public class Main {
                 validateNumArgs(args,1);
                 Repository.global_log();
                 break;
+            case "find":
+                validateNumArgs(args, 2);
+                Repository.find(args[1]);
+                break;
             default:
                 throw Utils.error("No command with that name exists.");
         }
