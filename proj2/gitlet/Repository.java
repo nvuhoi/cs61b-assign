@@ -384,4 +384,51 @@ public class Repository {
     private static void setHeadPointBranch(String newBranch) {
         writeContents(HEADPOINTBRANCH, newBranch);
     }
+
+    public static void status() {
+        printBranchesZone();
+        printStagedZone();
+        prinfRemovedZone();
+        printModificationZone();
+        printUntrackedZone();
+    }
+
+    /** Print branches zone. */
+    private static void printBranchesZone() {
+        System.out.println("=== Branches ===");
+        String headPointBranch = getHeadPointBranch();
+        System.out.println("*" + headPointBranch);
+        for (String i : plainFilenamesIn(BRANCH_DIR)) {
+            if (!i.equals("HEAD") && !i.equals(headPointBranch)) {
+                System.out.println(i);
+            }
+        }
+        System.out.println();
+    }
+    /** Print staged zone. */
+    private static void printStagedZone() {
+        System.out.println("=== Staged Files ===");
+        for (String i : plainFilenamesIn(PREPAREDCOMMIT_DIR)) {
+            System.out.println(i);
+        }
+        System.out.println();
+    }
+    /** Print removed zone. */
+    private static void prinfRemovedZone() {
+        System.out.println("=== Removed Files ===");
+        for (String i : plainFilenamesIn(REMOVE_DIR)) {
+            System.out.println(i);
+        }
+        System.out.println();
+    }
+    /** Print Modifications Not Staged For Commit zone. */
+    private static void printModificationZone() {
+        System.out.println("=== Modifications Not Staged For Commit ===");
+        System.out.println();
+    }
+    /** Print Untracked files zone. */
+    private static void printUntrackedZone() {
+        System.out.println("=== Untracked Files ===");
+        System.out.println();
+    }
 }

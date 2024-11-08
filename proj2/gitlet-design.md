@@ -116,6 +116,18 @@
 > /** HEAD point branch */
 ##### 51. private static void setHeadPointBranch(String newBranch)
 > 改變 HEAD 指向的分支。
+##### 52. public static void status()
+> status 命令。
+##### 53. private static void printBranchesZone()
+> /** Print branches zone. */
+##### 54. private static void printStagedZone()
+> /** Print staged zone. */
+##### 55. private static void prinfRemovedZone()
+> /** Print removed zone. */
+##### 56. private static void printModificationZone()
+> /** Print Modifications Not Staged For Commit zone. */
+##### 57. private static void printUntrackedZone()
+> /** Print Untracked files zone. */
 
 
 ### Class Commit
