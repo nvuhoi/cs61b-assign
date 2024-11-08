@@ -386,6 +386,7 @@ public class Repository {
     }
 
     public static void status() {
+        checkInit();
         printBranchesZone();
         printStagedZone();
         prinfRemovedZone();
@@ -430,5 +431,58 @@ public class Repository {
     private static void printUntrackedZone() {
         System.out.println("=== Untracked Files ===");
         System.out.println();
+    }
+
+    /** Checkout file from HEAD commit. */
+    public static void checkoutFile(String filename) {
+        checkInit();
+        copyFileFromCommitToCWD(getHeadCommit(), filename);
+        exitGitlet();
+    }
+
+    /** Checkout file from specific commit. */
+    public static void checkoutCommitFile(String commitID, String filename) {
+        checkInit();
+
+        if (join(LOGS_DIR, commitID).exists()) {
+            copyFileFromCommitToCWD(getCommit(commitID), filename);
+        } else { throw error("No commit with that id exists."); }
+
+        exitGitlet();
+    }
+
+    /** Check commit have file. */
+    private static boolean checkCommitHaveFile(Commit commit, String filename) {
+        HashMap<String, String> map = commit.getBlobs();
+        return map.containsKey(fileNameSha(filename));
+    }
+
+    /** Copy file in commit blobs to CWD and replace original one or create one. */
+    private static void checkoutCommitBlobs(Commit commit, String filename) {
+        File file = join(CWD, filename);
+        copyfile(file, join(BLOB_DIR, commit.getBlobs().get(fileNameSha(filename))));
+        if (!file.exists()) {
+            createFile(file);
+        }
+    }
+
+    /** If commit have file, copy one to the CWD. Throw error if commit does not have that file. */
+    private static void copyFileFromCommitToCWD(Commit commit, String filename) {
+        if (checkCommitHaveFile(commit, filename)){
+            checkoutCommitBlobs(commit, filename);
+        } else {
+            throw error("File does not exist in that commit.");
+        }
+    }
+
+    public static void checkoutBranch(String branchName) {
+
+    }
+
+    public static void printcommitblobs(String commitid) {
+        Commit commit = getCommit(commitid);
+        for (String i : commit.getBlobs().keySet()) {
+            System.out.println(i);
+        }
     }
 }
