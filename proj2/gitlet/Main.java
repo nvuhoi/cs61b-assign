@@ -69,9 +69,6 @@ public class Main {
                     throw Utils.error("Incorrect operands.");
                 }
                 break;
-            case "uuu":
-                Repository.printcommitblobs(args[1]);
-                break;
             default:
                 throw Utils.error("No command with that name exists.");
         }
