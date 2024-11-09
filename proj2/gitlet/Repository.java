@@ -476,14 +476,55 @@ public class Repository {
         }
     }
 
-    public static void checkoutBranch(String branchName) {
-
-    }
-
     public static void printcommitblobs(String commitid) {
         Commit commit = getCommit(commitid);
         for (String i : commit.getBlobs().keySet()) {
             System.out.println(i);
         }
+    }
+    public static void checkoutBranch(String branchName) {
+        File toCheckoutBranch = join(BRANCH_DIR, branchName);
+        Commit branchNameCommit = getBranchPointCommit(branchName);
+
+        checkoutBranchFailureCases(branchName);
+
+        for (String i : plainFilenamesIn(CWD)) {
+            if (getHeadCommitBlobsMap().containsKey(fileNameSha(i)) &&
+                    !branchNameCommit.getBlobs().containsKey(fileNameSha(i))) {
+                File file = join(CWD, i);
+                restrictedDelete(file);
+            }
+        }
+
+        checkoutWholeCommitToCWD(readContentsAsString(toCheckoutBranch));
+
+    }
+
+    private static boolean checkBranchExist(String branchName) {
+        return join(BRANCH_DIR, branchName).exists();
+    }
+
+    private static Commit getBranchPointCommit(String branchName) {
+        return getCommit(readContentsAsString(join(BRANCH_DIR, branchName)));
+    }
+
+    private static void checkoutBranchFailureCases(String branchName) {
+        Commit branchNameCommit = getBranchPointCommit(branchName);
+        if (!checkBranchExist(branchName)) {
+            throw error("No such branch exists.");
+        } else if (getHeadPointBranch().equals(branchName)) {
+            throw error("No need to checkout the current branch.");
+        } else {
+            for (String i : plainFilenamesIn(CWD)) {
+                if (!getHeadCommitBlobsMap().containsKey(fileNameSha(i)) &&
+                        branchNameCommit.getBlobs().containsKey(fileNameSha(i))) {
+                    throw error("There is an untracked file in the way; delete it, or add and commit it first.");
+                }
+            }
+        }
+    }
+
+    private static void checkoutWholeCommitToCWD(String commitID) {
+
     }
 }
