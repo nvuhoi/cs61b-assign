@@ -221,7 +221,7 @@ public class Repository {
     }
     /** Create new commit blobsMap */
     private static HashMap<String, String> createNewCommitBlobsMap() {
-        HashMap<String, String> newBlobsMap = getHeadCommitBlobsMap();
+        HashMap<String, String> newBlobsMap = mergeTwoMapToTarget(getHeadCommitBlobsMap(), getStagedMap());
         if (! (getRemoveSet().isEmpty())) {
             for (String i : getRemoveSet()) {
                 newBlobsMap.remove(fileNameSha(i));
@@ -229,7 +229,6 @@ public class Repository {
                 file.delete();
             }
         }
-        newBlobsMap = mergeTwoMapToTarget(newBlobsMap, getStagedMap());
         clearRemoveSet();
         return newBlobsMap;
     }
@@ -387,7 +386,6 @@ public class Repository {
     }
 
     public static void status() {
-        checkInit();
         printBranchesZone();
         printStagedZone();
         prinfRemovedZone();
@@ -433,25 +431,4 @@ public class Repository {
         System.out.println("=== Untracked Files ===");
         System.out.println();
     }
-
-    /** Checkout file from HEAD commit. */
-    public static void checkoutFile(String filename) {
-        checkInit();
-
-    }
-
-    /** Checkout file from specific commit. */
-    public static void checkoutCommitFile(String commitID, String filename) {
-        checkInit();
-
-
-    }
-
-
-
-    public static void checkoutBranch(String branchName) {
-
-    }
-
-
 }
