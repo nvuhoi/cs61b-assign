@@ -128,6 +128,19 @@
 > /** Print Modifications Not Staged For Commit zone. */
 ##### 57. private static void printUntrackedZone()
 > /** Print Untracked files zone. */
+##### 58. public static void checkoutFile(String filename)
+> checkout 命令 - checkout HEAD commit file 。
+##### 59. public static void checkoutCommitFile(String commitID, String filename)
+> checkout 命令 - checkout commitID file 。
+##### 60. private static boolean checkCommitHaveFile(Commit commit, String filename)
+> 回傳 commit 是否有 filename 。
+##### 61. private static void checkoutCommitBlobs(Commit commit, String filename)
+> 將 commit 的 file 備份到 CWD 裡，若原檔案存在則覆蓋之。
+##### 62. private static void copyFileFromCommitToCWD(Commit commit, String filename)
+> 執行 checkCommitHaveFile 若存在即執行 checkoutCommitBlobs ，
+> 若不存在則提出 error 。
+##### 63. public static void checkoutBranch(String branchName)
+> checkout 命令 - checkout branch。
 
 
 ### Class Commit
