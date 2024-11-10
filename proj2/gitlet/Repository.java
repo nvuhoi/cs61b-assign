@@ -136,14 +136,14 @@ public class Repository {
         copyfile(fileSendToBlobs, file);
         createFile(fileSendToBlobs);
 
-        putKeyValueInStagedMap(fileNameSha(filename), fileSha(filename, file));
+        putKeyValueInStagedMap(filename, fileSha(filename, file));
         exitGitlet();
     }
 
     /** Put key and value in stagedMap */
-    private static void putKeyValueInStagedMap(String fileNameSha, String fileSha) {
+    private static void putKeyValueInStagedMap(String filename, String fileSha) {
         HashMap<String, String> fileMap = getStagedMap();
-        fileMap.put(fileNameSha, fileSha);
+        fileMap.put(filename, fileSha);
         writeObject(STAGING, fileMap);
     }
 
@@ -153,7 +153,7 @@ public class Repository {
     private static void checkTheCommitVersion(String filename, String fileSha) {
         HashMap<String, String> headBlobsMap = getHeadCommitBlobsMap();
         if (headBlobsMap.containsValue(fileSha)) {
-            removeStagedMapKey(fileNameSha(filename));
+            removeStagedMapKey(filename);
             join(PREPAREDCOMMIT_DIR, filename).delete();
             exitGitlet();
         }
@@ -171,10 +171,6 @@ public class Repository {
         return readObject(STAGING, HashMap.class);
     }
 
-    /** Return Sha-1 of filename. */
-    private static String fileNameSha(String filename) {
-        return sha1(filename);
-    }
 
     /** Return Sha-1 of filename and contents. */
     private static String fileSha(String filename, File file) {
@@ -206,10 +202,15 @@ public class Repository {
             File file = join(PREPAREDCOMMIT_DIR, i);
             String filesha = fileSha(i, join(PREPAREDCOMMIT_DIR, i));
 
+            if (join(BLOB_DIR, filesha).exists()) {
+                file.delete();
+                continue;
+            }
             file.renameTo(join(BLOB_DIR, filesha));
             blobsMap.put(filesha, join(BLOB_DIR, filesha));
 
         }
+
         writeObject(BLOBS, blobsMap);
     }
     /** add HashMap to TargetMap, if targetMap have same key, replace that value. And return the new HashMap. */
@@ -224,7 +225,7 @@ public class Repository {
         HashMap<String, String> newBlobsMap = getHeadCommitBlobsMap();
         if (! (getRemoveSet().isEmpty())) {
             for (String i : getRemoveSet()) {
-                newBlobsMap.remove(fileNameSha(i));
+                newBlobsMap.remove(i);
                 File file = join(REMOVE_DIR, i);
                 file.delete();
             }
@@ -276,7 +277,7 @@ public class Repository {
         return readContentsAsString(HEADPOINTBRANCH);
     }
 
-    /** Add fileNameSha of filename in REMOVE. */
+    /** Add filename of filename in REMOVE. */
     private static void addFileInRemove(String filename) {
         HashSet<String> removeSet = getRemoveSet();
         removeSet.add(filename);
@@ -291,17 +292,17 @@ public class Repository {
     }
     public static void rm(String filename) {
         checkInit();
-        if (getHeadCommitBlobsMap().containsKey(fileNameSha(filename))) {
+        if (getHeadCommitBlobsMap().containsKey(filename)) {
             File file = join(CWD, filename);
             restrictedDelete(file);
-        } else if (getStagedMap().containsKey(fileNameSha(filename))) {
+        } else if (getStagedMap().containsKey(filename)) {
             ;
         } else {
             throw error("No reason to remove the file.");
         }
 
         addFileInRemove(filename);
-        removeStagedMapKey(fileNameSha(filename));
+        removeStagedMapKey(filename);
 
         File file = join(PREPAREDCOMMIT_DIR, filename);
         file.delete();
@@ -455,13 +456,13 @@ public class Repository {
     /** Check commit have file. */
     private static boolean checkCommitHaveFile(Commit commit, String filename) {
         HashMap<String, String> map = commit.getBlobs();
-        return map.containsKey(fileNameSha(filename));
+        return map.containsKey(filename);
     }
 
     /** Copy file in commit blobs to CWD and replace original one or create one. */
     private static void checkoutCommitBlobs(Commit commit, String filename) {
         File file = join(CWD, filename);
-        copyfile(file, join(BLOB_DIR, commit.getBlobs().get(fileNameSha(filename))));
+        copyfile(file, join(BLOB_DIR, commit.getBlobs().get(filename)));
         if (!file.exists()) {
             createFile(file);
         }
@@ -476,6 +477,7 @@ public class Repository {
         }
     }
 
+    /** TODO: delete this. */
     public static void printcommitblobs(String commitid) {
         Commit commit = getCommit(commitid);
         for (String i : commit.getBlobs().keySet()) {
@@ -483,48 +485,62 @@ public class Repository {
         }
     }
     public static void checkoutBranch(String branchName) {
+        checkInit();
+        checkoutBranchFailureCases(branchName);
+
         File toCheckoutBranch = join(BRANCH_DIR, branchName);
         Commit branchNameCommit = getBranchPointCommit(branchName);
 
-        checkoutBranchFailureCases(branchName);
-
         for (String i : plainFilenamesIn(CWD)) {
-            if (getHeadCommitBlobsMap().containsKey(fileNameSha(i)) &&
-                    !branchNameCommit.getBlobs().containsKey(fileNameSha(i))) {
+            if (getHeadCommitBlobsMap().containsKey(i) &&
+                    !branchNameCommit.getBlobs().containsKey(i)) {
                 File file = join(CWD, i);
                 restrictedDelete(file);
             }
         }
 
         checkoutWholeCommitToCWD(readContentsAsString(toCheckoutBranch));
+        setHeadPointBranch(branchName);
+        exitGitlet();
 
     }
 
+    /** Check branch exists. */
     private static boolean checkBranchExist(String branchName) {
         return join(BRANCH_DIR, branchName).exists();
     }
 
+    /** Return branch point commit. */
     private static Commit getBranchPointCommit(String branchName) {
         return getCommit(readContentsAsString(join(BRANCH_DIR, branchName)));
     }
 
+    /** Check all failure cases of checkout branch. */
     private static void checkoutBranchFailureCases(String branchName) {
-        Commit branchNameCommit = getBranchPointCommit(branchName);
         if (!checkBranchExist(branchName)) {
             throw error("No such branch exists.");
         } else if (getHeadPointBranch().equals(branchName)) {
             throw error("No need to checkout the current branch.");
         } else {
+            Commit branchNameCommit = getBranchPointCommit(branchName);
             for (String i : plainFilenamesIn(CWD)) {
-                if (!getHeadCommitBlobsMap().containsKey(fileNameSha(i)) &&
-                        branchNameCommit.getBlobs().containsKey(fileNameSha(i))) {
+                if (!getHeadCommitBlobsMap().containsKey(i) &&
+                        branchNameCommit.getBlobs().containsKey(i)) {
                     throw error("There is an untracked file in the way; delete it, or add and commit it first.");
                 }
             }
         }
     }
 
+    /** Checkout all files in commit to CWD. */
     private static void checkoutWholeCommitToCWD(String commitID) {
-
+        Commit commit = getCommit(commitID);
+        for (String i : commit.getBlobs().keySet()) {
+            File file = join(CWD, i);
+            if (!file.exists()) {
+                createFile(file);
+            }
+            copyfile(file, getBlobsMap().get(commit.getBlobs().get(i)));
+        }
     }
 }

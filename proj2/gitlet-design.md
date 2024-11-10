@@ -52,7 +52,7 @@
 > /** Prepare commit file director. */
 ##### 20. public static final File REMOVE = join(STAGED_DIR, "prepareRemove");
 > /** Prepare remove fileSet. */
-##### 21. private static void putKeyValueInStagedMap(String fileNameSha, String fileSha)
+##### 21. private static void putKeyValueInStagedMap(String fileName, String fileSha)
 > 把一對 key 和 value 放進 StagedMap。
 ##### 22.private static void checkTheCommitVersion(String filename, String fileSha)
 > 確認儲存在 HEAD commit 裡的文件版本。若與即將 add 的版本相同，則拒絕 add 的行動，
@@ -61,8 +61,8 @@
 > 刪除 StagedMap 中的 key 。
 ##### 24. private static HashMap<String, String> getStagedMap()
 > 傳回儲存在 STAGING 中的 StagedMap 。
-##### 25. private static String fileNameSha(String filename)
-> /** Return Sha-1 of filename. */
+##### 25.private static boolean checkBranchExist(String branchName)
+> 查看分支是否存在。
 ##### 26. private static String fileSha(String filename, File file)
 > /** Return Sha-1 of filename and contents. */
 ##### 27. public static void commit(String commitMessage)
@@ -141,6 +141,12 @@
 > 若不存在則提出 error 。
 ##### 63. public static void checkoutBranch(String branchName)
 > checkout 命令 - checkout branch。
+##### 64. private static Commit getBranchPointCommit(String branchName)
+> 回傳分支指向的 commit 。
+##### 65. private static void checkoutBranchFailureCases(String branchName)
+> 檢查 checkout branch 的所有失敗情況。
+##### 66. private static void checkoutWholeCommitToCWD(String commitID)
+> checkout 所有在 commit 中的文件到 CWD 。
 
 
 ### Class Commit

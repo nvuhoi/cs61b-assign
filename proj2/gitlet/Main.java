@@ -54,15 +54,13 @@ public class Main {
                 break;
             case "checkout":
                 if (args.length == 2) {
-                    if (args[1] instanceof String) {
-                        Repository.checkoutBranch(args[1]);
-                    } else { throw Utils.error("Incorrect operands."); }
+                    Repository.checkoutBranch(args[1]);
                 } else if (args.length == 3) {
-                    if (args[1].equals("--") && args[2] instanceof String) {
+                    if (args[1].equals("--")) {
                         Repository.checkoutFile(args[2]);
                     } else { throw Utils.error("Incorrect operands."); }
                 } else if (args.length == 4) {
-                    if (args[1] instanceof String && args[2].equals("--") && args[3] instanceof String) {
+                    if (args[2].equals("--")) {
                         Repository.checkoutCommitFile(args[1], args[3]);
                     } else { throw Utils.error("Incorrect operands."); }
                 } else {
