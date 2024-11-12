@@ -501,8 +501,13 @@ public class Repository {
 
         checkoutWholeCommitToCWD(readContentsAsString(toCheckoutBranch));
         cleanStagedMap();
+        clearRemoveSet();
         for (String i : plainFilenamesIn(PREPAREDCOMMIT_DIR)) {
             File file = join(PREPAREDCOMMIT_DIR, i);
+            file.delete();
+        }
+        for (String i : plainFilenamesIn(REMOVE_DIR)) {
+            File file = join(REMOVE_DIR, i);
             file.delete();
         }
         changeBranchPoint(HEAD, readContentsAsString(join(BRANCH_DIR, branchName)));
