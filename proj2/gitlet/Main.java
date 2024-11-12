@@ -67,6 +67,10 @@ public class Main {
                     throw Utils.error("Incorrect operands.");
                 }
                 break;
+            case "branch":
+                validateNumArgs(args, 2);
+                Repository.branch(args[1]);
+                break;
             case "uuu":
                 Repository.printcommitblobs(args[1]);
                 break;

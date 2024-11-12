@@ -500,6 +500,7 @@ public class Repository {
         }
 
         checkoutWholeCommitToCWD(readContentsAsString(toCheckoutBranch));
+        changeBranchPoint(HEAD, readContentsAsString(join(BRANCH_DIR, branchName)));
         setHeadPointBranch(branchName);
         exitGitlet();
 
@@ -535,12 +536,24 @@ public class Repository {
     /** Checkout all files in commit to CWD. */
     private static void checkoutWholeCommitToCWD(String commitID) {
         Commit commit = getCommit(commitID);
+        HashMap<String, File> blobsMap = getBlobsMap();
         for (String i : commit.getBlobs().keySet()) {
             File file = join(CWD, i);
             if (!file.exists()) {
                 createFile(file);
             }
-            copyfile(file, getBlobsMap().get(commit.getBlobs().get(i)));
+            copyfile(file,blobsMap.get(commit.getBlobs().get(i)));
         }
+    }
+
+    public static void branch(String branchName) {
+        checkInit();
+        if (checkBranchExist(branchName)) {
+            throw error("A branch with that name already exists.");
+        }
+        File file = join(BRANCH_DIR, branchName);
+        copyfile(file, HEAD);
+        createFile(file);
+        exitGitlet();
     }
 }
