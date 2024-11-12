@@ -71,6 +71,10 @@ public class Main {
                 validateNumArgs(args, 2);
                 Repository.branch(args[1]);
                 break;
+            case "rm-branch":
+                validateNumArgs(args, 2);
+                Repository.rmBranch(args[1]);
+                break;
             case "uuu":
                 Repository.printcommitblobs(args[1]);
                 break;

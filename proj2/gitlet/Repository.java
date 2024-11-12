@@ -500,6 +500,11 @@ public class Repository {
         }
 
         checkoutWholeCommitToCWD(readContentsAsString(toCheckoutBranch));
+        cleanStagedMap();
+        for (String i : plainFilenamesIn(PREPAREDCOMMIT_DIR)) {
+            File file = join(PREPAREDCOMMIT_DIR, i);
+            file.delete();
+        }
         changeBranchPoint(HEAD, readContentsAsString(join(BRANCH_DIR, branchName)));
         setHeadPointBranch(branchName);
         exitGitlet();
@@ -554,6 +559,21 @@ public class Repository {
         File file = join(BRANCH_DIR, branchName);
         copyfile(file, HEAD);
         createFile(file);
+        exitGitlet();
+    }
+
+    public static void rmBranch(String branchName) {
+        checkInit();
+        if (!checkBranchExist(branchName)) {
+            exitGitlet();
+        }
+
+        if (readContentsAsString(HEADPOINTBRANCH).equals(branchName)) {
+            throw error("Cannot remove the current branch.");
+        }
+
+        File file = join(BRANCH_DIR, branchName);
+        file.delete();
         exitGitlet();
     }
 }

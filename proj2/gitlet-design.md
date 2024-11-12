@@ -147,6 +147,9 @@
 > 檢查 checkout branch 的所有失敗情況。
 ##### 66. private static void checkoutWholeCommitToCWD(String commitID)
 > checkout 所有在 commit 中的文件到 CWD 。
+##### 67. public static void branch(String branchName)
+> branch 命令。
+#####
 
 
 ### Class Commit
