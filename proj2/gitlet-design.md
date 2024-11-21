@@ -149,8 +149,16 @@
 > checkout 所有在 commit 中的文件到 CWD 。
 ##### 67. public static void branch(String branchName)
 > branch 命令。
-#####
-
+##### 68. public static void rmBranch(String branchName)
+> rm-Branch 命令。
+##### 69. private static void checkFilesNotBeTrackedWouldNotBeReplace(Commit commit)
+> /** Check no files not tracked in current commit would be replaced by new commit files. */
+##### 70. private static void deleteFilesNotTrackedInCommit(Commit commit)
+> 檢查 CWD 中的文件，若在 commit 中不存在則刪除它。
+##### 71. private static void cleanAllStagingArea()
+> 刪除全部的 staging 區域，包括準備 commit 和 removed 。
+##### 72. public static void reset(String commitID)
+> reset 命令。
 
 ### Class Commit
 > 有關commit事項的實現細節。

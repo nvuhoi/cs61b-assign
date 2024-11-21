@@ -491,31 +491,42 @@ public class Repository {
         File toCheckoutBranch = join(BRANCH_DIR, branchName);
         Commit branchNameCommit = getBranchPointCommit(branchName);
 
-        for (String i : plainFilenamesIn(CWD)) {
-            if (getHeadCommitBlobsMap().containsKey(i) &&
-                    !branchNameCommit.getBlobs().containsKey(i)) {
-                File file = join(CWD, i);
-                restrictedDelete(file);
-            }
-        }
+        deleteFilesNotTrackedInCommit(branchNameCommit);
 
         checkoutWholeCommitToCWD(readContentsAsString(toCheckoutBranch));
-        cleanStagedMap();
-        clearRemoveSet();
-        for (String i : plainFilenamesIn(PREPAREDCOMMIT_DIR)) {
-            File file = join(PREPAREDCOMMIT_DIR, i);
-            file.delete();
-        }
-        for (String i : plainFilenamesIn(REMOVE_DIR)) {
-            File file = join(REMOVE_DIR, i);
-            file.delete();
-        }
+        cleanAllStagingArea();
         changeBranchPoint(HEAD, readContentsAsString(join(BRANCH_DIR, branchName)));
         setHeadPointBranch(branchName);
         exitGitlet();
 
     }
 
+    /** Delete files in CWD that not be tracked in given commit. */
+    private static void deleteFilesNotTrackedInCommit(Commit commit) {
+        for (String i : plainFilenamesIn(CWD)) {
+            if (getHeadCommitBlobsMap().containsKey(i) &&
+                    !commit.getBlobs().containsKey(i)) {
+                File file = join(CWD, i);
+                restrictedDelete(file);
+            }
+        }
+    }
+
+    /** Clean all staging area. Include staged and removed. */
+    private static void cleanAllStagingArea() {
+        cleanStagedMap();
+        clearRemoveSet();
+
+        for (String i : plainFilenamesIn(PREPAREDCOMMIT_DIR)) {
+            File file = join(PREPAREDCOMMIT_DIR, i);
+            
+            file.delete();
+        }
+        for (String i : plainFilenamesIn(REMOVE_DIR)) {
+            File file = join(REMOVE_DIR, i);
+            file.delete();
+        }
+    }
     /** Check branch exists. */
     private static boolean checkBranchExist(String branchName) {
         return join(BRANCH_DIR, branchName).exists();
@@ -534,11 +545,16 @@ public class Repository {
             throw error("No need to checkout the current branch.");
         } else {
             Commit branchNameCommit = getBranchPointCommit(branchName);
-            for (String i : plainFilenamesIn(CWD)) {
-                if (!getHeadCommitBlobsMap().containsKey(i) &&
-                        branchNameCommit.getBlobs().containsKey(i)) {
-                    throw error("There is an untracked file in the way; delete it, or add and commit it first.");
-                }
+            checkFilesNotBeTrackedWouldNotBeReplace(branchNameCommit);
+        }
+    }
+
+    /** Check no files not tracked in current commit would be replaced by new commit files. */
+    private static void checkFilesNotBeTrackedWouldNotBeReplace(Commit commit) {
+        for (String i : plainFilenamesIn(CWD)) {
+            if (!getHeadCommitBlobsMap().containsKey(i) &&
+                    commit.getBlobs().containsKey(i)) {
+                throw error("There is an untracked file in the way; delete it, or add and commit it first.");
             }
         }
     }
@@ -579,6 +595,23 @@ public class Repository {
 
         File file = join(BRANCH_DIR, branchName);
         file.delete();
+        exitGitlet();
+    }
+
+    public static void reset(String commitID) {
+        checkInit();
+        if (!join(LOGS_DIR, commitID).exists()) {
+            throw error("No commit with that id exists.");
+        } else {
+            checkFilesNotBeTrackedWouldNotBeReplace(getCommit(commitID));
+        }
+
+        deleteFilesNotTrackedInCommit(getCommit(commitID));
+        checkoutWholeCommitToCWD(commitID);
+        cleanAllStagingArea();
+
+        changeBranchPoint(join(BRANCH_DIR, getHeadPointBranch()), commitID);
+        changeBranchPoint(HEAD, commitID);
         exitGitlet();
     }
 }
